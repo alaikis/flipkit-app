@@ -1,0 +1,51 @@
+name: qukit_flutter
+description: A K12 learning app skeleton (Flutter) with local sqlite (drift), sync, plugin and model adapter stubs.
+publish_to: 'none'
+environment:
+  sdk: ">=2.18.0 <4.0.0"
+  flutter: ">=3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  provider: ^6.0.0
+  drift: any
+  sqflite: any
+  path_provider: any
+  dio: any
+  flutter_downloader: any
+  shared_preferences: any
+  uuid: ^3.0.6
+  flutter_secure_storage: ^8.0.0
+  image_picker: ^0.8.5
+  google_ml_kit: ^0.12.0
+  flutter_tts: any
+  video_player: ^2.4.0
+  get: ^4.6.5
+  flutter_animate: ^4.1.1
+  lottie: ^2.4.0
+  percent_indicator: ^4.1.1
+  smooth_page_indicator: ^1.1.0
+  getwidget: ^2.0.5
+  google_fonts: ^4.0.3
+  flutter_svg: ^1.1.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner: any
+  drift_dev: any
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/plugins/
+    - assets/images/
+    - assets/illustrations/
+  fonts:
+    - family: NotoSansSC
+      fonts:
+        - asset: assets/fonts/NotoSansSC-Regular.otf
+        - asset: assets/fonts/NotoSansSC-Bold.otf
+          weight: 700
