@@ -9,6 +9,7 @@ class AppConstants {
   static const String routeQuiz = '/quiz';
   static const String routeEssay = '/essay';
   static const String routeDaoism = '/daoism';
+  static const String routeMorality = '/morality';
   static const String routeSettings = '/settings';
   static const String routeProfile = '/profile';
   static const String routeResources = '/resources';
@@ -69,6 +70,7 @@ class AppConstants {
     '语文',
     '数学',
     '英语',
+    '道德与法治',
     '物理',
     '化学',
     '生物',

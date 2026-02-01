@@ -434,7 +434,7 @@ class TermsOfServicePage extends StatelessWidget {
                     style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                   TextSpan(
-                    text：'：$description',
+                    text: '：$description',
                   ),
                 ],
               ),

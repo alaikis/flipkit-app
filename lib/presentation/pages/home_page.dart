@@ -147,6 +147,12 @@ class HomePage extends StatelessWidget {
           onTap: () => AppRoutes.toDaoism(),
         ),
         _buildModuleCard(
+          icon: Icons.psychology,
+          title: '道德',
+          color: Color(0xFFE91E63),
+          onTap: () => AppRoutes.toMorality(),
+        ),
+        _buildModuleCard(
           icon: Icons.folder_open,
           title: '资源',
           color: Color(0xFF9C27B0),

@@ -17,6 +17,7 @@ class OnboardingPage extends StatefulWidget {
 class _OnboardingPageState extends State<OnboardingPage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
+  bool _agreedToTerms = false;
 
   final List<Map<String, dynamic>> _pages = [
     {
@@ -55,6 +56,14 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   void _skip() async {
+    if (!_agreedToTerms) {
+      Get.snackbar(
+        '请阅读并同意',
+        '请阅读并同意隐私政策和使用条款',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
     await StorageHelper().setFirstLaunch(false);
     AppRoutes.toHome();
   }
@@ -244,14 +253,14 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       child: InkWell(
                         onTap: _next,
                         borderRadius: BorderRadius.circular(24),
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
                             horizontal: 32,
                             vertical: 16,
                           ),
                           child: Text(
-                            '下一页',
-                            style: TextStyle(
+                            _currentPage == _pages.length - 1 ? '开始使用' : '下一页',
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 20,
                               fontWeight: FontWeight.w700,
@@ -264,6 +273,96 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   ),
                 ),
               ),
+
+              // 隐私政策同意（仅在最后一页显示）
+              if (_currentPage == _pages.length - 1)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: ChildThemeTransitions.slideUp(
+                    animate: true,
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.95),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.shield, color: Colors.blue[600], size: 20),
+                              const SizedBox(width: 8),
+                              Text(
+                                '请阅读并同意',
+                                style: Get.textTheme.titleSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Checkbox(
+                                value: _agreedToTerms,
+                                onChanged: (value) {
+                                  setState(() => _agreedToTerms = value ?? false);
+                                },
+                                activeColor: ChildTheme.grassGreen,
+                              ),
+                              Expanded(
+                                child: Wrap(
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  children: [
+                                    const Text('我已阅读并同意'),
+                                    const SizedBox(width: 4),
+                                    InkWell(
+                                      onTap: () => AppRoutes.toPrivacyPolicy(),
+                                      child: Text(
+                                        '《隐私政策》',
+                                        style: TextStyle(
+                                          color: Colors.blue[600],
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                      ),
+                                    ),
+                                    const Text('和'),
+                                    const SizedBox(width: 4),
+                                    InkWell(
+                                      onTap: () => AppRoutes.toTermsOfService(),
+                                      child: Text(
+                                        '《使用条款》',
+                                        style: TextStyle(
+                                          color: Colors.blue[600],
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '福州阿莱克斯信息技术有限公司',
+                            style: Get.textTheme.bodySmall?.copyWith(
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),

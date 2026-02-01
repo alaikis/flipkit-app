@@ -245,4 +245,18 @@ class ChildThemeTransitions {
           color: Colors.yellow,
         );
   }
+
+  /// 淡入效果
+  static Widget fadeIn({
+    required Widget child,
+    required bool animate,
+    Duration duration = const Duration(milliseconds: 400),
+    Duration delay = Duration.zero,
+  }) {
+    if (!animate) return child;
+    return child.animate().fadeIn(
+      duration: duration,
+      delay: delay,
+    );
+  }
 }

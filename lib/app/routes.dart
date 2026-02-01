@@ -6,6 +6,7 @@ import '../presentation/pages/dictation_page.dart';
 import '../presentation/pages/quiz_page.dart';
 import '../presentation/pages/essay_page.dart';
 import '../presentation/pages/daoism_page.dart';
+import '../presentation/pages/morality_page.dart';
 import '../presentation/pages/settings_page.dart';
 import '../presentation/pages/resource_page.dart';
 import '../presentation/pages/opensource_policy_page.dart';
@@ -21,6 +22,7 @@ class AppRoutes {
   static const String quiz = '/quiz';
   static const String essay = '/essay';
   static const String daoism = '/daoism';
+  static const String morality = '/morality';
   static const String settings = '/settings';
   static const String resources = '/resources';
   static const String openSourcePolicy = '/opensource_policy';
@@ -63,6 +65,11 @@ class AppRoutes {
     GetPage(
       name: daoism,
       page: () => const DaoismPage(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: morality,
+      page: () => const MoralityPage(),
       transition: Transition.rightToLeft,
     ),
     GetPage(
@@ -118,6 +125,9 @@ class AppRoutes {
 
   /// 跳转到道法页
   static void toDaoism() => Get.toNamed(daoism);
+
+  /// 跳转到道德与法治页
+  static void toMorality() => Get.toNamed(morality);
 
   /// 跳转到开源策略页
   static void toOpenSourcePolicy() => Get.toNamed(openSourcePolicy);

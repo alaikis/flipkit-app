@@ -113,7 +113,7 @@ class _SplashPageState extends State<SplashPage> {
                 const SizedBox(height: 48),
 
                 // 加载指示器 - 使用儿童乐园风格
-                ChildThemeTransitions.wobble(
+                ChildThemeTransitions.rotate(
                   animate: true,
                   delay: const Duration(milliseconds: 700),
                   child: Container(
@@ -146,6 +146,62 @@ class _SplashPageState extends State<SplashPage> {
                       ),
                     ),
                   ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: ChildThemeTransitions.fadeIn(
+            animate: true,
+            delay: const Duration(milliseconds: 800),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '福州阿莱克斯信息技术有限公司',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: () => AppRoutes.toPrivacyPolicy(),
+                      child: Text(
+                        '隐私政策',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 12,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      ' · ',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.6),
+                        fontSize: 12,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () => AppRoutes.toTermsOfService(),
+                      child: Text(
+                        '使用条款',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 12,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

@@ -14,43 +14,82 @@ class TTSService {
 
   /// 初始化
   Future<void> init() async {
-    if (_isInitialized || _flutterTts != null) return;
-
-    _flutterTts = FlutterTts();
+    if (_isInitialized || _flutterTts != null) {
+      Logger.info('TTS already initialized', tag: 'TTSService');
+      return;
+    }
 
     try {
-      // 设置语言
-      await _flutterTts!.setLanguage('zh-CN');
+      _flutterTts = FlutterTts();
+      Logger.info('Creating FlutterTts instance', tag: 'TTSService');
+
+      // 设置语言（带超时保护）
+      try {
+        await _flutterTts!.setLanguage('zh-CN').timeout(
+          const Duration(seconds: 5),
+          onTimeout: () {
+            Logger.warning('TTS setLanguage timeout', tag: 'TTSService');
+          },
+        );
+      } catch (e) {
+        Logger.warning('TTS setLanguage failed: $e', tag: 'TTSService');
+      }
 
       // 设置音调
-      await _flutterTts!.setPitch(1.0);
+      try {
+        await _flutterTts!.setPitch(1.0);
+      } catch (e) {
+        Logger.warning('TTS setPitch failed: $e', tag: 'TTSService');
+      }
 
       // 设置语速
-      await _flutterTts!.setSpeechRate(0.5);
+      try {
+        await _flutterTts!.setSpeechRate(0.5);
+      } catch (e) {
+        Logger.warning('TTS setSpeechRate failed: $e', tag: 'TTSService');
+      }
 
       // 设置音量
-      await _flutterTts!.setVolume(1.0);
+      try {
+        await _flutterTts!.setVolume(1.0);
+      } catch (e) {
+        Logger.warning('TTS setVolume failed: $e', tag: 'TTSService');
+      }
 
-      // 监听状态
-      _flutterTts!.setStartHandler(() {
-        _isSpeaking = true;
-        Logger.info('TTS started speaking', tag: 'TTSService');
-      });
+      // 监听状态（带错误保护）
+      try {
+        _flutterTts!.setStartHandler(() {
+          _isSpeaking = true;
+          Logger.info('TTS started speaking', tag: 'TTSService');
+        });
+      } catch (e) {
+        Logger.warning('TTS setStartHandler failed: $e', tag: 'TTSService');
+      }
 
-      _flutterTts!.setCompletionHandler(() {
-        _isSpeaking = false;
-        Logger.info('TTS completed', tag: 'TTSService');
-      });
+      try {
+        _flutterTts!.setCompletionHandler(() {
+          _isSpeaking = false;
+          Logger.info('TTS completed', tag: 'TTSService');
+        });
+      } catch (e) {
+        Logger.warning('TTS setCompletionHandler failed: $e', tag: 'TTSService');
+      }
 
-      _flutterTts!.setErrorHandler((msg) {
-        _isSpeaking = false;
-        Logger.error('TTS error: $msg', tag: 'TTSService');
-      });
+      try {
+        _flutterTts!.setErrorHandler((msg) {
+          _isSpeaking = false;
+          Logger.error('TTS error: $msg', tag: 'TTSService');
+        });
+      } catch (e) {
+        Logger.warning('TTS setErrorHandler failed: $e', tag: 'TTSService');
+      }
 
       _isInitialized = true;
-      Logger.info('TTS Service initialized', tag: 'TTSService');
+      Logger.info('TTS Service initialized successfully', tag: 'TTSService');
     } catch (e) {
       Logger.error('Failed to initialize TTS', error: e, tag: 'TTSService');
+      _flutterTts = null;
+      _isInitialized = false;
       // 不抛出异常，允许应用继续运行
     }
   }
