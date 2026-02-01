@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:getwidget/getwidget.dart';
 import 'package:get/get.dart';
 import '../../app/routes.dart';
 import '../../core/utils/storage_helper.dart';
 import '../../core/constants/app_constants.dart';
+import '../../core/theme/child_theme_transitions.dart';
 
 /// 引导页
 class OnboardingPage extends StatefulWidget {
@@ -23,19 +23,22 @@ class _OnboardingPageState extends State<OnboardingPage> {
       'icon': Icons.auto_awesome,
       'title': 'AI 智能组题',
       'description': '使用大模型自动生成个性化题目',
-      'color': Color(0xFF2196F3),
+      'color': ChildTheme.skyBlue,
+      'bgColor': Color(0xFF87CEEB).withOpacity(0.15),
     },
     {
       'icon': Icons.camera_alt,
       'title': 'OCR 智能识别',
       'description': '拍照识别手写内容，智能评分反馈',
-      'color': Color(0xFFFF9800),
+      'color': ChildTheme.sunshineYellow,
+      'bgColor': Color(0xFFFFD700).withOpacity(0.15),
     },
     {
-      'icon': 'assets/images/github_logo.png',
+      'icon': Icons.folder_special,
       'title': '资源进化系统',
       'description': 'GitHub 资源搜索下载，扩展学习资料',
-      'color': Color(0xFF4CAF50),
+      'color': ChildTheme.grassGreen,
+      'bgColor': Color(0xFF90EE90).withOpacity(0.15),
     },
   ];
 
@@ -59,7 +62,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   void _next() {
     if (_currentPage < _pages.length - 1) {
       _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 400),
         curve: Curves.easeInOut,
       );
     } else {
@@ -71,115 +74,198 @@ class _OnboardingPageState extends State<OnboardingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            // 顶部跳过按钮
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Align(
-                alignment: Alignment.topRight,
-                child: GFButton(
-                  text: '跳过',
-                  type: GFButtonType.transparent,
-                  textColor: Get.theme.colorScheme.primary,
-                  onPressed: _skip,
-                ),
-              ),
-            ),
-
-            // 页面内容
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: _onPageChanged,
-                itemCount: _pages.length,
-                itemBuilder: (context, index) {
-                  final page = _pages[index];
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // 图标
-                      Container(
-                        width: 200,
-                        height: 200,
-                        decoration: BoxDecoration(
-                          color: page['color'].withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(100),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: ChildTheme.rainbowGradient,
+          ),
+          child: Column(
+            children: [
+              // 顶部跳过按钮
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: ChildThemeTransitions.sparkle(
+                    animate: true,
+                    child: TextButton(
+                      onPressed: _skip,
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        textStyle: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
                         ),
-                        child: Icon(
-                          page['icon'],
-                          size: 100,
-                          color: page['color'],
-                        ),
-                      ).animate().scale(duration: 600.ms, curve: Curves.elasticOut),
-
-                      const SizedBox(height: 40),
-
-                      // 标题
-                      Text(
-                        page['title'],
-                        style: Get.textTheme.displaySmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: page['color'],
-                        ),
-                        textAlign: TextAlign.center,
-                      ).animate().fadeIn(delay: 200.ms),
-
-                      const SizedBox(height: 16),
-
-                      // 描述
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 40),
-                        child: Text(
-                          page['description'],
-                          style: Get.textTheme.bodyLarge?.copyWith(
-                            color: Colors.grey[600],
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ).animate().fadeIn(delay: 400.ms),
-                    ],
-                  );
-                },
-              ),
-            ),
-
-            // 页面指示器
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  _pages.length,
-                  (index) => AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    width: _currentPage == index ? 24 : 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: _currentPage == index
-                          ? Get.theme.colorScheme.primary
-                          : Colors.grey[300],
-                      borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Text('跳过'),
                     ),
                   ),
                 ),
               ),
-            ),
 
-            // 底部按钮
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: GFButton(
-                text: _currentPage == _pages.length - 1 ? '开始使用' : '下一页',
-                size: GFSize.LARGE,
-                type: GFButtonType.solid,
-                color: Get.theme.colorScheme.primary,
-                blockButton: true,
-                onPressed: _next,
+              // 页面内容
+              Expanded(
+                child: PageView.builder(
+                  controller: _pageController,
+                  onPageChanged: _onPageChanged,
+                  itemCount: _pages.length,
+                  itemBuilder: (context, index) {
+                    final page = _pages[index];
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // 图标
+                        ChildThemeTransitions.bounce(
+                          animate: _currentPage == index,
+                          delay: Duration(milliseconds: 100 * index),
+                          child: Container(
+                            width: 220,
+                            height: 220,
+                            decoration: BoxDecoration(
+                              color: page['bgColor'],
+                              borderRadius: BorderRadius.circular(110),
+                              border: Border.all(
+                                color: page['color'].withOpacity(0.3),
+                                width: 3,
+                              ),
+                            ),
+                            child: Icon(
+                              page['icon'],
+                              size: 100,
+                              color: page['color'],
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 48),
+
+                        // 标题
+                        ChildThemeTransitions.slideUp(
+                          animate: _currentPage == index,
+                          delay: Duration(milliseconds: 200 + index * 100),
+                          child: Text(
+                            page['title'],
+                            style: Get.textTheme.displaySmall?.copyWith(
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                              fontSize: 36,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black45,
+                                  offset: Offset(2, 2),
+                                  blurRadius: 6,
+                                ),
+                              ],
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // 描述
+                        ChildThemeTransitions.slideUp(
+                          animate: _currentPage == index,
+                          delay: Duration(milliseconds: 400 + index * 100),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 40),
+                            child: Text(
+                              page['description'],
+                              style: Get.textTheme.bodyLarge?.copyWith(
+                                color: Colors.white.withOpacity(0.9),
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                                shadows: [
+                                  Shadow(
+                                    color: Colors.black45,
+                                    offset: Offset(1, 1),
+                                    blurRadius: 4,
+                                  ),
+                                ],
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+
+              // 页面指示器 - 儿童乐园风格（星星）
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    _pages.length,
+                    (index) => AnimatedContainer(
+                      duration: const Duration(milliseconds: 400),
+                      margin: const EdgeInsets.symmetric(horizontal: 8),
+                      child: ChildThemeTransitions.sparkle(
+                        animate: _currentPage == index,
+                        child: Icon(
+                          _currentPage == index ? Icons.star : Icons.star_border,
+                          size: _currentPage == index ? 32 : 24,
+                          color: _currentPage == index
+                              ? ChildTheme.sunshineYellow
+                              : Colors.white.withOpacity(0.5),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              // 底部按钮
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: ChildThemeTransitions.bounceScale(
+                  animate: true,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color(0xFFFF9AA2),
+                          Color(0xFFFFD700),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: _next,
+                        borderRadius: BorderRadius.circular(24),
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 32,
+                            vertical: 16,
+                          ),
+                          child: Text(
+                            '下一页',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 1,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

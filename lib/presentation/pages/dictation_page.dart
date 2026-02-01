@@ -273,7 +273,6 @@ class _DictationPageState extends State<DictationPage> {
     return GFProgressBar(
       percentage: ((step + 1) / 5) * 100,
       lineHeight: 8,
-      backgroundColor: const Color(0xFFE0E0E0),
       leading: Text('${step + 1}/5', style: Get.textTheme.bodySmall),
     );
   }

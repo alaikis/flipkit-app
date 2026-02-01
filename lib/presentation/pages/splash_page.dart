@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:getwidget/getwidget.dart';
 import 'package:get/get.dart';
 import '../../app/routes.dart';
 import '../../core/utils/storage_helper.dart';
-import '../../core/constants/app_constants.dart';
+import '../../core/widgets/open_book_icon.dart';
+import '../../core/theme/child_theme_transitions.dart';
 
 /// 启动页
 class SplashPage extends StatefulWidget {
@@ -42,67 +42,113 @@ class _SplashPageState extends State<SplashPage> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF2196F3),
-              Color(0xFF64B5F6),
+              Color(0xFFFF9AA2),  // 珊瑚粉
+              Color(0xFFFFD700),  // 阳光黄
+              Color(0xFF90EE90),  // 草地绿
             ],
           ),
         ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Logo
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
+        child: ChildTheme.cloudDecoration(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // 展开的书本图标
+                ChildThemeTransitions.bounceScale(
+                  animate: true,
+                  child: const OpenBookIcon(
+                    size: 100,
+                    frontColor: Color(0xFFFFD700),
+                    backColor: Color(0xFFFF9AA2),
+                  ),
+                ),
+
+                const SizedBox(height: 32),
+
+                // 应用名称
+                ChildThemeTransitions.slideUp(
+                  animate: true,
+                  delay: const Duration(milliseconds: 300),
+                  child: const Text(
+                    '趣学',
+                    style: TextStyle(
+                      fontSize: 52,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                      letterSpacing: 3,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black45,
+                          offset: Offset(2, 2),
+                          blurRadius: 4,
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-                child: const Icon(
-                  Icons.school,
-                  size: 80,
-                  color: Color(0xFF2196F3),
+
+                const SizedBox(height: 12),
+
+                // 副标题
+                ChildThemeTransitions.slideUp(
+                  animate: true,
+                  delay: const Duration(milliseconds: 500),
+                  child: const Text(
+                    '智能学习，快乐成长',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white70,
+                      fontWeight: FontWeight.w500,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black45,
+                          offset: Offset(1, 1),
+                          blurRadius: 3,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ).animate().scale(duration: 600.ms, curve: Curves.elasticOut),
 
-              const SizedBox(height: 24),
+                const SizedBox(height: 48),
 
-              // 应用名称
-              const Text(
-                'FlipKit',
-                style: TextStyle(
-                  fontSize: 42,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  letterSpacing: 2,
+                // 加载指示器 - 使用儿童乐园风格
+                ChildThemeTransitions.wobble(
+                  animate: true,
+                  delay: const Duration(milliseconds: 700),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const SizedBox(
+                      width: 40,
+                      height: 40,
+                      child: Center(
+                        child: SizedBox(
+                          width: 30,
+                          height: 30,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 4,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              ChildTheme.sunshineYellow,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ).animate().fadeIn(delay: 300.ms, duration: 600.ms),
-
-              const SizedBox(height: 12),
-
-              // 副标题
-              const Text(
-                '智能学习，快乐成长',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white70,
-                ),
-              ).animate().fadeIn(delay: 600.ms, duration: 600.ms),
-
-              const SizedBox(height: 48),
-
-              // 加载指示器
-              GFLoader(
-                type: GFLoaderType.circle,
-              ).animate().fadeIn(delay: 900.ms, duration: 600.ms),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -12,34 +12,58 @@ import 'services/resource_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 设置状态栏样式
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-    ),
-  );
+  try {
+    // 设置状态栏样式
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+      ),
+    );
 
-  // 设置首选方向
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-  ]);
+    // 设置首选方向
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
+  } catch (e) {
+    // 忽略系统设置错误，不影响应用启动
+    print('System setup error: $e');
+  }
+
+  // 初始化服务（每个服务独立捕获异常）
+  Logger.info('Initializing services...', tag: 'Main');
 
   try {
-    // 初始化服务
-    Logger.info('Initializing services...', tag: 'Main');
-
     await AIService().init();
-    await OCRService().init();
-    await TTSService().init();
-    await GitHubService().init();
-    await ResourceService().init();
-
-    Logger.info('All services initialized successfully', tag: 'Main');
-  } catch (e, stackTrace) {
-    Logger.error('Failed to initialize services',
-        error: e, stackTrace: stackTrace, tag: 'Main');
+  } catch (e) {
+    Logger.error('Failed to initialize AI Service', error: e, tag: 'Main');
   }
+
+  try {
+    await OCRService().init();
+  } catch (e) {
+    Logger.error('Failed to initialize OCR Service', error: e, tag: 'Main');
+  }
+
+  try {
+    await TTSService().init();
+  } catch (e) {
+    Logger.error('Failed to initialize TTS Service', error: e, tag: 'Main');
+  }
+
+  try {
+    await GitHubService().init();
+  } catch (e) {
+    Logger.error('Failed to initialize GitHub Service', error: e, tag: 'Main');
+  }
+
+  try {
+    await ResourceService().init();
+  } catch (e) {
+    Logger.error('Failed to initialize Resource Service', error: e, tag: 'Main');
+  }
+
+  Logger.info('App starting', tag: 'Main');
 
   runApp(const App());
 }

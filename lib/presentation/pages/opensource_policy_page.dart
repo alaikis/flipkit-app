@@ -277,9 +277,9 @@ class OpenSourcePolicyPage extends StatelessWidget {
 
   Widget _buildBenefitsSection() {
     return GFCard(
-      title: const GFListTile(
-        avatar: Icon(Icons.lightbulb, color: Colors.amber),
-        title: Text('开源带来的好处'),
+      title: GFListTile(
+        avatar: const Icon(Icons.lightbulb, color: Colors.amber),
+        title: const Text('开源带来的好处'),
       ),
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

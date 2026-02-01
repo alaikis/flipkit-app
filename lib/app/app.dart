@@ -21,7 +21,7 @@ class App extends StatelessWidget {
         }
 
         return GetMaterialApp(
-          title: 'FlipKit',
+          title: '趣学',
           debugShowCheckedModeBanner: false,
           theme: snapshot.data!,
           getPages: AppRoutes.routes,

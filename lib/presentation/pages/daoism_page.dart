@@ -136,7 +136,7 @@ class _DaoismPageState extends State<DaoismPage> {
   Widget _buildCategorySelector() {
     return GFCard(
       margin: const EdgeInsets.all(16),
-      child: Column(
+      content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
@@ -205,7 +205,7 @@ class _DaoismPageState extends State<DaoismPage> {
 
     return GFCard(
       margin: const EdgeInsets.only(bottom: 16),
-      child: Padding(
+      content: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -246,7 +246,6 @@ class _DaoismPageState extends State<DaoismPage> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 GFButton(
-                  icon: Icons.volume_up,
                   text: '诵读',
                   type: GFButtonType.outline,
                   size: GFSize.SMALL,
@@ -254,7 +253,6 @@ class _DaoismPageState extends State<DaoismPage> {
                 ),
                 const SizedBox(width: 8),
                 GFButton(
-                  icon: Icons.copy,
                   text: '复制',
                   type: GFButtonType.outline,
                   size: GFSize.SMALL,
@@ -271,7 +269,7 @@ class _DaoismPageState extends State<DaoismPage> {
     );
   }
 
-  void _speakContent(String text) async {
+  Future<void> _speakContent(String text) async {
     try {
       setState(() => _isPlaying = true);
       await _ttsService.speak(text);
@@ -282,7 +280,7 @@ class _DaoismPageState extends State<DaoismPage> {
     }
   }
 
-  void _togglePlay() async {
+  Future<void> _togglePlay() async {
     if (_isPlaying) {
       await _ttsService.stop();
       setState(() => _isPlaying = false);

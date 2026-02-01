@@ -118,15 +118,23 @@ class _SettingsPageState extends State<SettingsPage> {
       content: Column(
         children: [
           GFListTile(
-            title: const Text('应用版本'),
-            subTitle: Text('${AppConfig.appVersion} (Build ${AppConfig.buildNumber})'),
-            icon: const Icon(Icons.info_outline),
+            title: const Text('隐私政策'),
+            subTitle: const Text('查看隐私政策详情'),
+            icon: const Icon(Icons.privacy_tip),
+            onTap: () => AppRoutes.toPrivacyPolicy(),
           ),
           const Divider(),
           GFListTile(
-            title: const Text('许可证'),
-            icon: const Icon(Icons.description),
-            onTap: () {},
+            title: const Text('使用条款'),
+            subTitle: const Text('查看使用条款详情'),
+            icon: const Icon(Icons.gavel),
+            onTap: () => AppRoutes.toTermsOfService(),
+          ),
+          const Divider(),
+          GFListTile(
+            title: const Text('应用版本'),
+            subTitle: Text('${AppConfig.appVersion} (Build ${AppConfig.buildNumber})'),
+            icon: const Icon(Icons.info_outline),
           ),
           const Divider(),
           GFListTile(

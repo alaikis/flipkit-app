@@ -12,7 +12,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('FlipKit'),
+        title: const Text('趣学'),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),

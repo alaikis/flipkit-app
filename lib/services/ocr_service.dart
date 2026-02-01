@@ -26,7 +26,12 @@ class OCRService {
 
   /// 初始化（使用默认 OCR 提供商）
   Future<void> init() async {
-    await initWithProvider();
+    try {
+      await initWithProvider();
+    } catch (e) {
+      Logger.error('Failed to initialize OCR service', error: e, tag: 'OCRService');
+      // 不抛出异常，允许应用继续运行
+    }
   }
 
   /// 使用指定提供商初始化

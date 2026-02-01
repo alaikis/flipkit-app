@@ -198,20 +198,28 @@ class _EssayPageState extends State<EssayPage> {
 
           // 总体评价
           GFCard(
-            title: const Text('总体评价'),
-            content: Text(
-              _gradingResult!['overall_feedback'] ?? '',
-              style: Get.textTheme.bodyLarge,
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('总体评价', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                const SizedBox(height: 8),
+                Text(
+                  _gradingResult!['overall_feedback'] ?? '',
+                  style: Get.textTheme.bodyLarge,
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 16),
 
           // 优点
           GFCard(
-            title: const Text('优点'),
             content: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: (_gradingResult!['strengths'] as List?)
+              children: [
+                const Text('优点', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                const SizedBox(height: 8),
+                ...(_gradingResult!['strengths'] as List?)
                       ?.map((s) => Padding(
                             padding: const EdgeInsets.only(bottom: 8),
                             child: Row(
@@ -225,16 +233,19 @@ class _EssayPageState extends State<EssayPage> {
                           ))
                       .toList() ??
                   [],
+              ],
             ),
           ),
           const SizedBox(height: 16),
 
           // 不足
           GFCard(
-            title: const Text('不足'),
             content: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: (_gradingResult!['weaknesses'] as List?)
+              children: [
+                const Text('不足', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                const SizedBox(height: 8),
+                ...(_gradingResult!['weaknesses'] as List?)
                       ?.map((w) => Padding(
                             padding: const EdgeInsets.only(bottom: 8),
                             child: Row(
@@ -247,16 +258,19 @@ class _EssayPageState extends State<EssayPage> {
                           ))
                       .toList() ??
                   [],
+              ],
             ),
           ),
           const SizedBox(height: 16),
 
           // 修改建议
           GFCard(
-            title: const Text('修改建议'),
             content: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: (_gradingResult!['correction_suggestions'] as List?)
+              children: [
+                const Text('修改建议', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                const SizedBox(height: 8),
+                ...(_gradingResult!['correction_suggestions'] as List?)
                       ?.map((s) => Padding(
                             padding: const EdgeInsets.only(bottom: 8),
                             child: Row(
@@ -270,6 +284,7 @@ class _EssayPageState extends State<EssayPage> {
                           ))
                       .toList() ??
                   [],
+              ],
             ),
           ),
           const SizedBox(height: 24),

@@ -14,47 +14,51 @@ class TTSService {
 
   /// 初始化
   Future<void> init() async {
-    if (_isInitialized) return;
+    if (_isInitialized || _flutterTts != null) return;
 
     _flutterTts = FlutterTts();
 
-    // 设置语言
-    await _flutterTts!.setLanguage('zh-CN');
-    await _flutterTts!.setSharedInstance(true);
+    try {
+      // 设置语言
+      await _flutterTts!.setLanguage('zh-CN');
 
-    // 设置音调
-    await _flutterTts!.setPitch(1.0);
+      // 设置音调
+      await _flutterTts!.setPitch(1.0);
 
-    // 设置语速
-    await _flutterTts!.setSpeechRate(0.5);
+      // 设置语速
+      await _flutterTts!.setSpeechRate(0.5);
 
-    // 设置音量
-    await _flutterTts!.setVolume(1.0);
+      // 设置音量
+      await _flutterTts!.setVolume(1.0);
 
-    // 监听状态
-    _flutterTts!.setStartHandler(() {
-      _isSpeaking = true;
-      Logger.info('TTS started speaking', tag: 'TTSService');
-    });
+      // 监听状态
+      _flutterTts!.setStartHandler(() {
+        _isSpeaking = true;
+        Logger.info('TTS started speaking', tag: 'TTSService');
+      });
 
-    _flutterTts!.setCompletionHandler(() {
-      _isSpeaking = false;
-      Logger.info('TTS completed', tag: 'TTSService');
-    });
+      _flutterTts!.setCompletionHandler(() {
+        _isSpeaking = false;
+        Logger.info('TTS completed', tag: 'TTSService');
+      });
 
-    _flutterTts!.setErrorHandler((msg) {
-      _isSpeaking = false;
-      Logger.error('TTS error: $msg', tag: 'TTSService');
-    });
+      _flutterTts!.setErrorHandler((msg) {
+        _isSpeaking = false;
+        Logger.error('TTS error: $msg', tag: 'TTSService');
+      });
 
-    _isInitialized = true;
-    Logger.info('TTS Service initialized', tag: 'TTSService');
+      _isInitialized = true;
+      Logger.info('TTS Service initialized', tag: 'TTSService');
+    } catch (e) {
+      Logger.error('Failed to initialize TTS', error: e, tag: 'TTSService');
+      // 不抛出异常，允许应用继续运行
+    }
   }
 
   /// 播放文本
   Future<void> speak(String text) async {
     try {
-      if (!_isInitialized) {
+      if (!_isInitialized || _flutterTts == null) {
         await init();
       }
 
@@ -62,9 +66,12 @@ class TTSService {
         await stop();
       }
 
-      Logger.info('Speaking text: ${text.substring(0, 50)}...', tag: 'TTSService');
+      final previewText = text.length > 50 ? '${text.substring(0, 50)}...' : text;
+      Logger.info('Speaking text: $previewText', tag: 'TTSService');
 
-      await _flutterTts!.speak(text);
+      if (_flutterTts != null) {
+        await _flutterTts!.speak(text);
+      }
     } catch (e, stackTrace) {
       Logger.error('Failed to speak text',
           error: e, stackTrace: stackTrace, tag: 'TTSService');
@@ -75,6 +82,9 @@ class TTSService {
   /// 停止播放
   Future<void> stop() async {
     try {
+      if (_flutterTts == null) {
+        await init();
+      }
       await _flutterTts!.stop();
       _isSpeaking = false;
       Logger.info('TTS stopped', tag: 'TTSService');
@@ -87,6 +97,9 @@ class TTSService {
   /// 暂停播放
   Future<void> pause() async {
     try {
+      if (_flutterTts == null) {
+        await init();
+      }
       await _flutterTts!.pause();
       Logger.info('TTS paused', tag: 'TTSService');
     } catch (e, stackTrace) {
@@ -98,6 +111,9 @@ class TTSService {
   /// 恢复播放
   Future<void> resume() async {
     try {
+      if (_flutterTts == null) {
+        await init();
+      }
       await _flutterTts!.speak(''); // 触发恢复
       Logger.info('TTS resumed', tag: 'TTSService');
     } catch (e, stackTrace) {
@@ -112,6 +128,9 @@ class TTSService {
   /// 设置语言
   Future<void> setLanguage(String language) async {
     try {
+      if (_flutterTts == null) {
+        await init();
+      }
       await _flutterTts!.setLanguage(language);
       Logger.info('TTS language set to: $language', tag: 'TTSService');
     } catch (e, stackTrace) {
@@ -123,6 +142,9 @@ class TTSService {
   /// 设置语速
   Future<void> setSpeechRate(double rate) async {
     try {
+      if (_flutterTts == null) {
+        await init();
+      }
       await _flutterTts!.setSpeechRate(rate);
       Logger.info('TTS speech rate set to: $rate', tag: 'TTSService');
     } catch (e, stackTrace) {
@@ -134,6 +156,9 @@ class TTSService {
   /// 设置音调
   Future<void> setPitch(double pitch) async {
     try {
+      if (_flutterTts == null) {
+        await init();
+      }
       await _flutterTts!.setPitch(pitch);
       Logger.info('TTS pitch set to: $pitch', tag: 'TTSService');
     } catch (e, stackTrace) {
@@ -145,6 +170,9 @@ class TTSService {
   /// 设置音量
   Future<void> setVolume(double volume) async {
     try {
+      if (_flutterTts == null) {
+        await init();
+      }
       await _flutterTts!.setVolume(volume);
       Logger.info('TTS volume set to: $volume', tag: 'TTSService');
     } catch (e, stackTrace) {
@@ -156,9 +184,12 @@ class TTSService {
   /// 获取可用语言
   Future<List<String>> getLanguages() async {
     try {
+      if (_flutterTts == null) {
+        await init();
+      }
       final languages = await _flutterTts!.getLanguages;
       Logger.info('Available TTS languages: ${languages.length}', tag: 'TTSService');
-      return languages.cast<String>();
+      return languages;
     } catch (e, stackTrace) {
       Logger.error('Failed to get TTS languages',
           error: e, stackTrace: stackTrace, tag: 'TTSService');
@@ -168,8 +199,14 @@ class TTSService {
 
   /// 释放资源
   Future<void> dispose() async {
-    await _flutterTts!.stop();
-    _flutterTts = null;
+    try {
+      if (_flutterTts != null) {
+        await _flutterTts!.stop();
+        _flutterTts = null;
+      }
+    } catch (e) {
+      Logger.error('Failed to dispose TTS', error: e, tag: 'TTSService');
+    }
     _isInitialized = false;
     Logger.info('TTS Service disposed', tag: 'TTSService');
   }

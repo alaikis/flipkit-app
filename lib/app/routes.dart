@@ -9,6 +9,8 @@ import '../presentation/pages/daoism_page.dart';
 import '../presentation/pages/settings_page.dart';
 import '../presentation/pages/resource_page.dart';
 import '../presentation/pages/opensource_policy_page.dart';
+import '../presentation/pages/privacy_policy_page.dart';
+import '../presentation/pages/terms_of_service_page.dart';
 
 /// 应用路由
 class AppRoutes {
@@ -22,6 +24,8 @@ class AppRoutes {
   static const String settings = '/settings';
   static const String resources = '/resources';
   static const String openSourcePolicy = '/opensource_policy';
+  static const String privacyPolicy = '/privacy_policy';
+  static const String termsOfService = '/terms_of_service';
 
   /// 路由配置
   static final routes = [
@@ -76,6 +80,16 @@ class AppRoutes {
       page: () => const OpenSourcePolicyPage(),
       transition: Transition.rightToLeft,
     ),
+    GetPage(
+      name: privacyPolicy,
+      page: () => const PrivacyPolicyPage(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: termsOfService,
+      page: () => const TermsOfServicePage(),
+      transition: Transition.rightToLeft,
+    ),
   ];
 
   /// 跳转到启动页
@@ -107,6 +121,12 @@ class AppRoutes {
 
   /// 跳转到开源策略页
   static void toOpenSourcePolicy() => Get.toNamed(openSourcePolicy);
+
+  /// 跳转到隐私政策页
+  static void toPrivacyPolicy() => Get.toNamed(privacyPolicy);
+
+  /// 跳转到使用条款页
+  static void toTermsOfService() => Get.toNamed(termsOfService);
 
   /// 返回上一页
   static void back() => Get.back();
