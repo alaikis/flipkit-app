@@ -3,6 +3,7 @@ import 'package:getwidget/getwidget.dart';
 import 'package:get/get.dart';
 import '../../core/constants/app_constants.dart';
 import '../../config/ai_config.dart';
+import '../../config/app_config.dart';
 
 /// 设置页面
 class SettingsPage extends StatefulWidget {
@@ -62,7 +63,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ...AIConfig.providers.map((provider) {
             return GFListTile(
               title: Text(provider.name),
-              trailing: _selectedProvider == provider.name
+              avatar: _selectedProvider == provider.name
                   ? const Icon(Icons.check_circle, color: Colors.green)
                   : const Icon(Icons.radio_button_unchecked),
               onTap: () => _selectProvider(provider.name),
@@ -87,7 +88,7 @@ class _SettingsPageState extends State<SettingsPage> {
         title: const Text('深色模式'),
         subTitle: const Text('切换应用主题'),
         icon: const Icon(Icons.dark_mode),
-        trailing: GFToggle(
+        avatar: GFToggle(
           onChanged: (val) => _toggleDarkMode(val ?? false),
           value: _darkMode,
           type: GFToggleType.ios,

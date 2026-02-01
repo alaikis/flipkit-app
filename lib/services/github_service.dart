@@ -271,8 +271,8 @@ class GitHubService {
       final files = await getRepositoryFiles(
         owner: owner,
         repo: repo,
-        path: path,
-        extension: fileExtension,
+        path: path ?? '',
+        extension: fileExtension ?? '',
       );
 
       final downloadedFiles = <String>[];
@@ -298,7 +298,7 @@ class GitHubService {
       return downloadedFiles;
     } catch (e, stackTrace) {
       Logger.error('Failed to clone repository',
-          error: e, stackTrace: tag: 'GitHubService');
+          error: e, stackTrace: stackTrace, tag: 'GitHubService');
       rethrow;
     }
   }

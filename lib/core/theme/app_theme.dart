@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../utils/storage_helper.dart';
+import 'package:get_storage/get_storage.dart';
 
 /// 应用主题配置
 class AppTheme {
@@ -56,12 +55,11 @@ class AppTheme {
       error: errorColor,
       errorContainer: errorLight,
       surface: white,
-      background: grey50,
       onPrimary: white,
       onSecondary: white,
       onError: white,
       onSurface: grey900,
-      onBackground: grey900,
+      onSurfaceVariant: grey900,
     ),
 
     // 主题色
@@ -74,7 +72,7 @@ class AppTheme {
       centerTitle: true,
       backgroundColor: primaryColor,
       foregroundColor: white,
-      titleTextStyle: GoogleFonts.notoSansSC(
+      titleTextStyle: const TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.w600,
         color: white,
@@ -99,7 +97,7 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
-        textStyle: GoogleFonts.notoSansSC(
+        textStyle: const TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w600,
         ),
@@ -109,7 +107,7 @@ class AppTheme {
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        textStyle: GoogleFonts.notoSansSC(
+        textStyle: const TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
@@ -123,7 +121,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(8),
         ),
         side: const BorderSide(color: primaryColor),
-        textStyle: GoogleFonts.notoSansSC(
+        textStyle: const TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w600,
         ),
@@ -140,7 +138,7 @@ class AppTheme {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: grey300),
+        borderSide: const BorderSide(color: grey300),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
@@ -151,16 +149,14 @@ class AppTheme {
         borderSide: const BorderSide(color: errorColor),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      hintStyle: GoogleFonts.notoSansSC(
+      hintStyle: const TextStyle(
         color: grey500,
         fontSize: 14,
       ),
     ),
 
     // 文本主题
-    textTheme: GoogleFonts.notoSansSC(
-      color: grey900,
-    ).copyWith(
+    textTheme: const TextTheme().copyWith(
       displayLarge: const TextStyle(
         fontSize: 57,
         fontWeight: FontWeight.bold,
@@ -239,12 +235,11 @@ class AppTheme {
       error: errorColor,
       errorContainer: Color(0xFFB71C1C),
       surface: Color(0xFF121212),
-      background: Color(0xFF000000),
       onPrimary: black,
       onSecondary: black,
       onError: white,
       onSurface: white,
-      onBackground: white,
+      onSurfaceVariant: white,
     ),
 
     primaryColor: primaryLight,
@@ -255,7 +250,7 @@ class AppTheme {
       centerTitle: true,
       backgroundColor: const Color(0xFF1E1E1E),
       foregroundColor: white,
-      titleTextStyle: GoogleFonts.notoSansSC(
+      titleTextStyle: const TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.w600,
         color: white,
@@ -271,9 +266,7 @@ class AppTheme {
       color: const Color(0xFF1E1E1E),
     ),
 
-    textTheme: GoogleFonts.notoSansSC(
-      color: white,
-    ),
+    textTheme: const TextTheme(),
 
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
@@ -294,7 +287,7 @@ class AppTheme {
         borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: errorColor),
       ),
-      hintStyle: GoogleFonts.notoSansSC(
+      hintStyle: const TextStyle(
         color: grey400,
         fontSize: 14,
       ),
@@ -303,7 +296,8 @@ class AppTheme {
 
   /// 获取当前主题
   static Future<ThemeData> getCurrentTheme() async {
-    final isDark = await StorageHelper().isDarkMode();
+    final box = GetStorage();
+    final isDark = box.read('isDarkMode') ?? false;
     return isDark ? darkTheme : lightTheme;
   }
 }

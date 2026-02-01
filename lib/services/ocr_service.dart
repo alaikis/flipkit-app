@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:google_ml_kit/google_ml_kit.dart';
-import 'package:image/image.dart' as img;
-import '../config/app_config.dart';
+import 'dart:typed_data';
+import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:image_picker/image_picker.dart';
 import '../core/utils/logger.dart';
 
 /// OCR 服务 - 图像文字识别
@@ -24,11 +26,8 @@ class OCRService {
     try {
       Logger.info('Recognizing text from image', tag: 'OCRService');
 
-      // 压缩图片
-      final compressedImage = await _compressImage(imageFile);
-
       // 创建输入图像
-      final inputImage = InputImage.fromFile(compressedImage);
+      final inputImage = InputImage.fromFile(imageFile);
 
       // 识别文字
       final RecognizedText recognizedText =
@@ -38,7 +37,7 @@ class OCRService {
       String text = '';
       for (TextBlock block in recognizedText.blocks) {
         for (TextLine line in block.lines) {
-          text += line.text + '\n';
+          text += '${line.text}\n';
         }
       }
 
@@ -51,109 +50,40 @@ class OCRService {
     }
   }
 
-  /// 压缩图片
-  Future<File> _compressImage(File imageFile) async {
-    try {
-      // 读取图片
-      final bytes = await imageFile.readAsBytes();
-      final image = img.decodeImage(bytes);
-
-      if (image == null) {
-        throw Exception('Failed to decode image');
-      }
-
-      // 计算新尺寸
-      final maxDimension = 1280;
-      int width = image.width;
-      int height = image.height;
-
-      if (width > maxDimension || height > maxDimension) {
-        if (width > height) {
-          height = (height * maxDimension / width).round();
-          width = maxDimension;
-        } else {
-          width = (width * maxDimension / height).round();
-          height = maxDimension;
-        }
-      }
-
-      // 调整大小
-      final resized = img.copyResize(
-        image,
-        width: width,
-        height: height,
-        interpolation: img.Interpolation.linear,
-      );
-
-      // 编码为 JPEG
-      final compressedBytes = img.encodeJpg(resized, quality: 85);
-
-      // 保存到临时文件
-      final tempFile = File(imageFile.path.replaceAll('.jpg', '_compressed.jpg'));
-      await tempFile.writeAsBytes(compressedBytes);
-
-      Logger.debug(
-        'Image compressed: ${bytes.length} -> ${compressedBytes.length} bytes',
-        tag: 'OCRService',
-      );
-
-      return tempFile;
-    } catch (e, stackTrace) {
-      Logger.error('Failed to compress image',
-          error: e, stackTrace: stackTrace, tag: 'OCRService');
-      return imageFile;
-    }
-  }
-
   /// 计算文本相似度 (Levenshtein 距离)
   double calculateSimilarity(String text1, String text2) {
-    // 清理文本
-    final cleanText1 = text1.replaceAll(RegExp(r'\s+'), '').toLowerCase();
-    final cleanText2 = text2.replaceAll(RegExp(r'\s+'), '').toLowerCase();
-
-    if (cleanText1.isEmpty && cleanText2.isEmpty) {
-      return 100.0;
-    }
-
-    if (cleanText1.isEmpty || cleanText2.isEmpty) {
-      return 0.0;
-    }
-
-    final distance = _levenshteinDistance(cleanText1, cleanText2);
-    final maxLength = cleanText1.length > cleanText2.length
-        ? cleanText1.length
-        : cleanText2.length;
-
-    final similarity = (1 - distance / maxLength) * 100;
-    return similarity;
+    final distance = _levenshteinDistance(text1, text2);
+    final maxLength = text1.length > text2.length ? text1.length : text2.length;
+    return maxLength == 0 ? 1.0 : 1.0 - (distance / maxLength);
   }
 
   /// Levenshtein 距离算法
-  int _levenshteinDistance(String text1, String text2) {
-    final m = text1.length;
-    final n = text2.length;
+  int _levenshteinDistance(String a, String b) {
+    final m = a.length;
+    final n = b.length;
 
-    // 创建矩阵
-    final dp = List.generate(m + 1, (i) => List.filled(n + 1, 0));
+    if (m == 0) return n;
+    if (n == 0) return m;
 
-    // 初始化第一行和第一列
+    List<List<int>> dp = List.generate(m + 1, (i) => List.filled(n + 1, 0));
+
     for (int i = 0; i <= m; i++) {
       dp[i][0] = i;
     }
+
     for (int j = 0; j <= n; j++) {
       dp[0][j] = j;
     }
 
-    // 填充矩阵
     for (int i = 1; i <= m; i++) {
       for (int j = 1; j <= n; j++) {
-        if (text1[i - 1] == text2[j - 1]) {
+        if (a[i - 1] == b[j - 1]) {
           dp[i][j] = dp[i - 1][j - 1];
         } else {
-          dp[i][j] = [
-            dp[i - 1][j] + 1, // 删除
-            dp[i][j - 1] + 1, // 插入
-            dp[i - 1][j - 1] + 1, // 替换
+          dp[i][j] = 1 + [
+            dp[i - 1][j],
+            dp[i][j - 1],
+            dp[i - 1][j - 1]
           ].reduce((a, b) => a < b ? a : b);
         }
       }
@@ -162,73 +92,100 @@ class OCRService {
     return dp[m][n];
   }
 
-  /// 查找文本差异
-  List<Map<String, dynamic>> findErrors(String original, String recognized) {
-    final errors = <Map<String, dynamic>>[];
+  /// 对比原文和识别结果，返回差异分析
+  Map<String, dynamic> compareTexts(String original, String recognized) {
+    final originalChars = original.replaceAll(' ', '').split('');
+    final recognizedChars = recognized.replaceAll(' ', '').split('');
 
-    final originalWords = original.split(RegExp(r'\s+'));
-    final recognizedWords = recognized.split(RegExp(r'\s+'));
+    final similarity = calculateSimilarity(original, recognized);
 
-    final maxLength =
-        originalWords.length > recognizedWords.length
-            ? originalWords.length
-            : recognizedWords.length;
+    List<String> missing = [];
+    List<String> extra = [];
+    List<Map<String, String>> wrong = [];
 
-    for (int i = 0; i < maxLength; i++) {
-      final originalWord = i < originalWords.length ? originalWords[i] : '';
-      final recognizedWord = i < recognizedWords.length ? recognizedWords[i] : '';
-
-      if (originalWord.isEmpty && recognizedWord.isNotEmpty) {
-        errors.add({
-          'type': 'extra',
-          'original': '',
-          'recognized': recognizedWord,
-          'position': i,
-        });
-      } else if (originalWord.isNotEmpty && recognizedWord.isEmpty) {
-        errors.add({
-          'type': 'missing',
-          'original': originalWord,
-          'recognized': '',
-          'position': i,
-        });
-      } else if (originalWord != recognizedWord) {
-        final similarity = _calculateWordSimilarity(originalWord, recognizedWord);
-        if (similarity > 0.8) {
-          errors.add({
-            'type': 'typo',
-            'original': originalWord,
-            'recognized': recognizedWord,
-            'position': i,
-          });
-        } else {
-          errors.add({
-            'type': 'substitution',
-            'original': originalWord,
-            'recognized': recognizedWord,
-            'position': i,
-          });
+    int i = 0, j = 0;
+    while (i < originalChars.length && j < recognizedChars.length) {
+      if (originalChars[i] == recognizedChars[j]) {
+        i++;
+        j++;
+      } else {
+        // 检查是否是多余字符
+        if (j + 1 < recognizedChars.length &&
+            originalChars[i] == recognizedChars[j + 1]) {
+          extra.add(recognizedChars[j]);
+          j++;
+        }
+        // 检查是否是缺失字符
+        else if (i + 1 < originalChars.length &&
+            originalChars[i + 1] == recognizedChars[j]) {
+          missing.add(originalChars[i]);
+          i++;
+        }
+        // 否则是错误字符
+        else {
+          wrong.add({'原字': originalChars[i], '识别为': recognizedChars[j]});
+          i++;
+          j++;
         }
       }
     }
 
-    return errors;
+    // 处理剩余字符
+    while (i < originalChars.length) {
+      missing.add(originalChars[i]);
+      i++;
+    }
+
+    while (j < recognizedChars.length) {
+      extra.add(recognizedChars[j]);
+      j++;
+    }
+
+    return {
+      '相似度': similarity,
+      '缺失': missing,
+      '多余': extra,
+      '错误': wrong,
+      '总字符数': originalChars.length,
+      '错误总数': missing.length + extra.length + wrong.length,
+    };
   }
 
-  /// 计算单词相似度
-  double _calculateWordSimilarity(String word1, String word2) {
-    if (word1.isEmpty && word2.isEmpty) return 1.0;
-    if (word1.isEmpty || word2.isEmpty) return 0.0;
+  /// 从相机拍照
+  Future<File?> pickImageFromCamera() async {
+    try {
+      final picker = ImagePicker();
+      final XFile? photo = await picker.pickImage(source: ImageSource.camera);
+      if (photo != null) {
+        return File(photo.path);
+      }
+      return null;
+    } catch (e, stackTrace) {
+      Logger.error('Failed to pick image from camera',
+          error: e, stackTrace: stackTrace, tag: 'OCRService');
+      return null;
+    }
+  }
 
-    final distance = _levenshteinDistance(word1, word2);
-    final maxLength = word1.length > word2.length ? word1.length : word2.length;
-
-    return 1 - distance / maxLength;
+  /// 从相册选择
+  Future<File?> pickImageFromGallery() async {
+    try {
+      final picker = ImagePicker();
+      final XFile? photo = await picker.pickImage(source: ImageSource.gallery);
+      if (photo != null) {
+        return File(photo.path);
+      }
+      return null;
+    } catch (e, stackTrace) {
+      Logger.error('Failed to pick image from gallery',
+          error: e, stackTrace: stackTrace, tag: 'OCRService');
+      return null;
+    }
   }
 
   /// 释放资源
-  Future<void> dispose() async {
-    await _textRecognizer?.close();
+  void dispose() {
+    _textRecognizer?.close();
     Logger.info('OCR Service disposed', tag: 'OCRService');
   }
 }

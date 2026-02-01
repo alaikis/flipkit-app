@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import '../config/ai_config.dart';
 import '../core/utils/logger.dart';
 import '../core/utils/storage_helper.dart';
+import '../core/constants/app_constants.dart';
 
 /// AI 服务 - 用于智能组题和评分
 class AIService {

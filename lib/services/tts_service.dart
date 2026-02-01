@@ -98,8 +98,7 @@ class TTSService {
   /// 恢复播放
   Future<void> resume() async {
     try {
-      await _flutterTts!.setSharedInstance(true);
-      await _flutterTts!.resume();
+      await _flutterTts!.speak(''); // 触发恢复
       Logger.info('TTS resumed', tag: 'TTSService');
     } catch (e, stackTrace) {
       Logger.error('Failed to resume TTS',

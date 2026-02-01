@@ -101,8 +101,6 @@ class _SplashPageState extends State<SplashPage> {
               // 加载指示器
               GFLoader(
                 type: GFLoaderType.circle,
-                androidColor: Colors.white,
-                iosColor: Colors.white,
               ).animate().fadeIn(delay: 900.ms, duration: 600.ms),
             ],
           ),

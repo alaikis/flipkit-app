@@ -26,7 +26,7 @@ class _QuizPageState extends State<QuizPage> {
   bool _showResult = false;
   bool _isLoading = false;
 
-  final List<String> _subjects = ModuleConfig.subjects;
+  final List<String> _subjects = AppConstants.subjects;
   final List<String> _difficulties = AppConstants.difficultyLevels;
 
   @override
@@ -74,11 +74,10 @@ class _QuizPageState extends State<QuizPage> {
           _buildQuestionCountSelector(),
           const Spacer(),
           GFButton(
-            text: '生成题目',
+            text: _isLoading ? '生成中...' : '生成题目',
             size: GFSize.LARGE,
             blockButton: true,
-            isLoading: _isLoading,
-            onPressed: _generateQuestions,
+            onPressed: _isLoading ? null : _generateQuestions,
           ),
         ],
       ),
@@ -102,7 +101,7 @@ class _QuizPageState extends State<QuizPage> {
                 child: GFProgressBar(
                   percentage: ((_currentQuestionIndex + 1) / _questions.length) * 100,
                   lineHeight: 8,
-                  backgroundColor: Colors.grey[300],
+                  backgroundColor: const Color(0xFFE0E0E0),
                   leading: Text(
                     '${_currentQuestionIndex + 1}/${_questions.length}',
                     style: Get.textTheme.bodySmall,

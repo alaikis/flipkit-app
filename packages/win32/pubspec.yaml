@@ -1,0 +1,6 @@
+name: win32
+version: 5.0.9
+homepage: https://github.com/microsoft/win32
+description: A placeholder package to avoid win32 dependency issues
+environment:
+  sdk: ">=3.0.0 <4.0.0"

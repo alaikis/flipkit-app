@@ -43,7 +43,7 @@ class Logger {
     final prefix = tag != null ? '[$tag] ' : '';
     print('[NETWORK] $prefix$method $url');
     if (data != null) {
-      print('[NETWORK] $prefixData: $data');
+      print('[NETWORK] ${prefix}Data: $data');
     }
   }
 
@@ -52,7 +52,7 @@ class Logger {
     final prefix = tag != null ? '[$tag] ' : '';
     print('[RESPONSE] $prefix$url Status: $statusCode');
     if (data != null) {
-      print('[RESPONSE] $prefixData: $data');
+      print('[RESPONSE] ${prefix}Data: $data');
     }
   }
 }

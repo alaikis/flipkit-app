@@ -207,8 +207,8 @@ class ResourceService {
       return await _githubService.getRepositoryFiles(
         owner: owner,
         repo: repo,
-        path: path,
-        extension: extension,
+        path: path ?? '',
+        extension: extension ?? '',
       );
     } catch (e, stackTrace) {
       Logger.error('Failed to get GitHub repository files',
@@ -238,7 +238,7 @@ class ResourceService {
       Logger.info('Resource deleted: $resourceId', tag: 'ResourceService');
     } catch (e, stackTrace) {
       Logger.error('Failed to delete resource',
-          error: e, stackTrace: tag: 'ResourceService');
+          error: e, stackTrace: stackTrace, tag: 'ResourceService');
     }
   }
 

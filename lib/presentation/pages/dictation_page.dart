@@ -28,8 +28,8 @@ class _DictationPageState extends State<DictationPage> {
   double? _similarity;
   List<Map<String, dynamic>>? _errors;
 
-  final List<String> _subjects = ModuleConfig.subjects;
-  final List<String> _grades = ModuleConfig.grades;
+  final List<String> _subjects = AppConstants.subjects;
+  final List<String> _grades = AppConstants.gradeLevels;
 
   @override
   Widget build(BuildContext context) {
@@ -273,7 +273,7 @@ class _DictationPageState extends State<DictationPage> {
     return GFProgressBar(
       percentage: ((step + 1) / 5) * 100,
       lineHeight: 8,
-      backgroundColor: Colors.grey[300],
+      backgroundColor: const Color(0xFFE0E0E0),
       leading: Text('${step + 1}/5', style: Get.textTheme.bodySmall),
     );
   }
@@ -352,7 +352,10 @@ class _DictationPageState extends State<DictationPage> {
     }
 
     return GFCard(
-      title: const Text('错误分析'),
+      title: const GFListTile(
+        avatar: Icon(Icons.error),
+        title: Text('错误分析'),
+      ),
       content: ListView.separated(
         shrinkWrap: true,
         itemCount: _errors!.length,

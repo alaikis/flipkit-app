@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:get/get.dart';
-import '../../core/constants/app_constants.dart';
 import '../../services/github_service.dart';
 import '../../services/resource_service.dart';
 
@@ -13,12 +12,19 @@ class ResourcePage extends StatefulWidget {
   State<ResourcePage> createState() => _ResourcePageState();
 }
 
-class _ResourcePageState extends ResourcePage> {
+class _ResourcePageState extends State<ResourcePage> {
   final GitHubService _githubService = GitHubService();
   final ResourceService _resourceService = ResourceService();
 
-  int _currentTabIndex = 0;
-  String _searchQuery = '';
+  late int _currentTabIndex;
+  late String _searchQuery;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentTabIndex = 0;
+    _searchQuery = '';
+  }
 
   final List<Widget> _tabs = [
     Tab(text: '本地资源'),
@@ -355,7 +361,7 @@ class _ResourcePageState extends ResourcePage> {
             ),
             const SizedBox(height: 12),
             _buildAddResourceButton(
-              icon: Icons.github,
+              icon: Icons.code,
               title: 'GitHub 下载',
               subtitle: '从 GitHub 仓库下载',
               color: Colors.purple,
@@ -431,7 +437,6 @@ class _ResourcePageState extends ResourcePage> {
         await Future.delayed(const Duration(seconds: 1));
         Get.snackbar('成功', '搜索完成');
       },
-      loadingText: '搜索中...',
     );
   }
 
@@ -446,7 +451,6 @@ class _ResourcePageState extends ResourcePage> {
         await Future.delayed(const Duration(seconds: 1));
         Get.snackbar('成功', '搜索完成');
       },
-      loadingText: '搜索中...',
     );
   }
 
