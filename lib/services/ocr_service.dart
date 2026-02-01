@@ -4,9 +4,17 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'ocr_factory.dart';
 import '../core/utils/logger.dart';
 
 /// OCR 服务 - 图像文字识别
+/// 
+/// 现支持多种 OCR 引擎：
+/// - Google ML Kit（移动端，闭源）
+/// - PaddleOCR（百度开源，推荐）
+/// - Tesseract（Google开源，备用）
+/// 
+/// 使用 OCRFactory 自动选择合适的引擎
 class OCRService {
   static final OCRService _instance = OCRService._internal();
   factory OCRService() => _instance;
@@ -14,11 +22,37 @@ class OCRService {
   OCRService._internal();
 
   TextRecognizer? _textRecognizer;
+  OCRProvider? _currentProvider;
 
-  /// 初始化
+  /// 初始化（使用默认 OCR 提供商）
   Future<void> init() async {
-    _textRecognizer = GoogleMlKit.vision.textRecognizer();
-    Logger.info('OCR Service initialized', tag: 'OCRService');
+    await initWithProvider();
+  }
+
+  /// 使用指定提供商初始化
+  Future<void> initWithProvider({OCRProvider? provider}) async {
+    // 尝试使用开源 OCR 服务
+    try {
+      final ocrBase = await OCRFactory.getService(provider: provider);
+      _currentProvider = OCRFactory.getCurrentProvider();
+      Logger.info('OCR Service initialized with ${OCRFactory.providerNames[_currentProvider]}', 
+                  tag: 'OCRService');
+      return;
+    } catch (e) {
+      Logger.warning('开源 OCR 初始化失败，回退到 Google ML Kit: $e', tag: 'OCRService');
+    }
+
+    // 回退到 Google ML Kit
+    try {
+      _textRecognizer = GoogleMlKit.vision.textRecognizer();
+      _currentProvider = OCRProvider.googleMLKit;
+      Logger.info('OCR Service initialized with Google ML Kit (fallback)', 
+                  tag: 'OCRService');
+    } catch (e, stackTrace) {
+      Logger.error('Google ML Kit 初始化失败',
+          error: e, stackTrace: stackTrace, tag: 'OCRService');
+      rethrow;
+    }
   }
 
   /// 识别图片中的文字
@@ -26,28 +60,56 @@ class OCRService {
     try {
       Logger.info('Recognizing text from image', tag: 'OCRService');
 
-      // 创建输入图像
-      final inputImage = InputImage.fromFile(imageFile);
-
-      // 识别文字
-      final RecognizedText recognizedText =
-          await _textRecognizer!.processImage(inputImage);
-
-      // 提取文字
-      String text = '';
-      for (TextBlock block in recognizedText.blocks) {
-        for (TextLine line in block.lines) {
-          text += '${line.text}\n';
-        }
+      // 如果使用 Google ML Kit
+      if (_currentProvider == OCRProvider.googleMLKit && _textRecognizer != null) {
+        return await _recognizeWithGoogleMLKit(imageFile);
       }
 
-      Logger.info('OCR completed. Text length: ${text.length}', tag: 'OCRService');
-      return text.trim();
+      // 如果使用开源 OCR
+      return await _recognizeWithOpenSource(imageFile);
     } catch (e, stackTrace) {
       Logger.error('Failed to recognize text',
           error: e, stackTrace: stackTrace, tag: 'OCRService');
+      
+      // 如果当前方法失败，尝试切换到备用方案
+      if (_currentProvider != OCRProvider.tesseract) {
+        Logger.info('尝试切换到 Tesseract 作为备用方案', tag: 'OCRService');
+        try {
+          await initWithProvider(provider: OCRProvider.tesseract);
+          return await _recognizeWithOpenSource(imageFile);
+        } catch (e2) {
+          Logger.error('备用 OCR 也失败', error: e2, tag: 'OCRService');
+        }
+      }
+      
       rethrow;
     }
+  }
+
+  /// 使用 Google ML Kit 识别
+  Future<String> _recognizeWithGoogleMLKit(File imageFile) async {
+    final inputImage = InputImage.fromFile(imageFile);
+    final recognizedText = await _textRecognizer!.processImage(inputImage);
+
+    String text = '';
+    for (TextBlock block in recognizedText.blocks) {
+      for (TextLine line in block.lines) {
+        text += '${line.text}\n';
+      }
+    }
+
+    Logger.info('Google ML Kit OCR completed. Text length: ${text.length}', 
+                tag: 'OCRService');
+    return text.trim();
+  }
+
+  /// 使用开源 OCR 识别
+  Future<String> _recognizeWithOpenSource(File imageFile) async {
+    final ocrBase = await OCRFactory.getService();
+    final text = await ocrBase.recognizeText(imageFile.path);
+    Logger.info('Open Source OCR completed. Text length: ${text.length}', 
+                tag: 'OCRService');
+    return text;
   }
 
   /// 计算文本相似度 (Levenshtein 距离)

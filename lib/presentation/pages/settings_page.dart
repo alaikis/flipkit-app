@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../core/constants/app_constants.dart';
 import '../../config/ai_config.dart';
 import '../../config/app_config.dart';
+import '../../app/routes.dart';
 
 /// 设置页面
 class SettingsPage extends StatefulWidget {
@@ -29,6 +30,8 @@ class _SettingsPageState extends State<SettingsPage> {
           _buildAIProviderSection(),
           _buildSectionHeader('应用设置'),
           _buildDarkModeSection(),
+          _buildSectionHeader('开源策略'),
+          _buildOpenSourceSection(),
           _buildSectionHeader('关于'),
           _buildAboutSection(),
         ],
@@ -93,6 +96,18 @@ class _SettingsPageState extends State<SettingsPage> {
           value: _darkMode,
           type: GFToggleType.ios,
         ),
+      ),
+    );
+  }
+
+  Widget _buildOpenSourceSection() {
+    return GFCard(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      content: GFListTile(
+        title: const Text('开源策略'),
+        subTitle: const Text('查看开源组件和策略'),
+        icon: const Icon(Icons.code),
+        onTap: () => AppRoutes.toOpenSourcePolicy(),
       ),
     );
   }

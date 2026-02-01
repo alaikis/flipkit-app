@@ -8,6 +8,7 @@ class AppConstants {
   static const String routeDictation = '/dictation';
   static const String routeQuiz = '/quiz';
   static const String routeEssay = '/essay';
+  static const String routeDaoism = '/daoism';
   static const String routeSettings = '/settings';
   static const String routeProfile = '/profile';
   static const String routeResources = '/resources';
@@ -53,6 +54,7 @@ class AppConstants {
     '判断题',
     '简答题',
     '作文题',
+    '诵读题',
   ];
 
   // ==================== 难度等级 ====================
@@ -86,5 +88,8 @@ class AppConstants {
     '七年级',
     '八年级',
     '九年级',
+    '高一',
+    '高二',
+    '高三',
   ];
 }

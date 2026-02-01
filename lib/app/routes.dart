@@ -5,8 +5,10 @@ import '../presentation/pages/onboarding_page.dart';
 import '../presentation/pages/dictation_page.dart';
 import '../presentation/pages/quiz_page.dart';
 import '../presentation/pages/essay_page.dart';
+import '../presentation/pages/daoism_page.dart';
 import '../presentation/pages/settings_page.dart';
 import '../presentation/pages/resource_page.dart';
+import '../presentation/pages/opensource_policy_page.dart';
 
 /// 应用路由
 class AppRoutes {
@@ -16,8 +18,10 @@ class AppRoutes {
   static const String dictation = '/dictation';
   static const String quiz = '/quiz';
   static const String essay = '/essay';
+  static const String daoism = '/daoism';
   static const String settings = '/settings';
   static const String resources = '/resources';
+  static const String openSourcePolicy = '/opensource_policy';
 
   /// 路由配置
   static final routes = [
@@ -53,6 +57,11 @@ class AppRoutes {
       transition: Transition.rightToLeft,
     ),
     GetPage(
+      name: daoism,
+      page: () => const DaoismPage(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
       name: settings,
       page: () => const SettingsPage(),
       transition: Transition.rightToLeft,
@@ -60,6 +69,11 @@ class AppRoutes {
     GetPage(
       name: resources,
       page: () => const ResourcePage(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: openSourcePolicy,
+      page: () => const OpenSourcePolicyPage(),
       transition: Transition.rightToLeft,
     ),
   ];
@@ -87,6 +101,12 @@ class AppRoutes {
 
   /// 跳转到资源页
   static void toResources() => Get.toNamed(resources);
+
+  /// 跳转到道法页
+  static void toDaoism() => Get.toNamed(daoism);
+
+  /// 跳转到开源策略页
+  static void toOpenSourcePolicy() => Get.toNamed(openSourcePolicy);
 
   /// 返回上一页
   static void back() => Get.back();

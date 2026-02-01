@@ -141,6 +141,12 @@ class HomePage extends StatelessWidget {
           onTap: () => AppRoutes.toEssay(),
         ),
         _buildModuleCard(
+          icon: Icons.auto_stories,
+          title: '道法',
+          color: Color(0xFF9C27B0),
+          onTap: () => AppRoutes.toDaoism(),
+        ),
+        _buildModuleCard(
           icon: Icons.folder_open,
           title: '资源',
           color: Color(0xFF9C27B0),
