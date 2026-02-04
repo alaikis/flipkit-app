@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:get/get.dart';
-import '../../core/constants/app_constants.dart';
 import '../../config/ai_config.dart';
 import '../../config/app_config.dart';
 import '../../app/routes.dart';

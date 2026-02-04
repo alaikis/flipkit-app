@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import '../../app/routes.dart';
 import '../../core/utils/storage_helper.dart';
-import '../../core/constants/app_constants.dart';
 import '../../core/theme/child_theme_transitions.dart';
 
 /// 引导页

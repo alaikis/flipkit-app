@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:get/get.dart';
-import '../../core/constants/app_constants.dart';
-import '../../services/ai_service.dart';
-import '../../services/ocr_service.dart';
 
 /// 作文页面
 class EssayPage extends StatefulWidget {
@@ -14,11 +11,7 @@ class EssayPage extends StatefulWidget {
 }
 
 class _EssayPageState extends State<EssayPage> {
-  final AIService _aiService = AIService();
-  final OCRService _ocrService = OCRService();
-
   String _selectedSubject = '语文';
-  String _selectedGrade = '三年级';
   int _currentStep = 0;
 
   String? _essayQuestion;

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/services.dart';
 import 'ocr_service_base.dart';
 import '../core/utils/logger.dart';

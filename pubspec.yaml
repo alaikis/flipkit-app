@@ -39,8 +39,8 @@ dependencies:
   image_picker: ^1.0.5
   cached_network_image: ^3.3.0
 
-  # OCR 和 AI
-  google_ml_kit: ^0.20.0
+  # OCR 和 AI - 移除 Google ML Kit 以支持国内手机
+  # google_ml_kit: ^0.20.0
 
   # 文本转语音
   flutter_tts: ^3.8.3
@@ -59,7 +59,7 @@ dependencies:
   # UI 增强
   flutter_animate: ^4.3.0
   lottie: ^2.7.0
-  google_fonts: ^6.1.0
+  # google_fonts: ^6.1.0  # 移除 Google Fonts 以支持国内手机
   flutter_svg: ^2.0.9
   shimmer: ^3.0.0
   pull_to_refresh: ^2.0.0

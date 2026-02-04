@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:get/get.dart';
-import '../../services/ai_service.dart';
 import '../../services/tts_service.dart';
-import '../../core/constants/app_constants.dart';
 import '../../core/utils/logger.dart';
 
 /// 道法诵读页面
@@ -15,11 +13,10 @@ class DaoismPage extends StatefulWidget {
 }
 
 class _DaoismPageState extends State<DaoismPage> {
-  final AIService _aiService = AIService();
   final TTSService _ttsService = TTSService();
 
   String _selectedCategory = '经典';
-  String _selectedDifficulty = '中等';
+  final String _selectedDifficulty = '中等';
   bool _isPlaying = false;
   int _currentIndex = 0;
 
@@ -103,7 +100,6 @@ class _DaoismPageState extends State<DaoismPage> {
   }
 
   List<Map<String, dynamic>> get _filteredByDifficulty {
-    final difficultyOrder = {'简单': 1, '中等': 2, '困难': 3};
     return _filteredContents
         .where((item) => item['difficulty'] == _selectedDifficulty)
         .toList();

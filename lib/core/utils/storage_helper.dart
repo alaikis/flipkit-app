@@ -10,100 +10,115 @@ class StorageHelper {
 
   StorageHelper._internal();
 
-  final _prefs = SharedPreferences.getInstance();
-  final _secureStorage = const FlutterSecureStorage(
-    aOptions: AndroidOptions(
-      encryptedSharedPreferences: true,
-    ),
-  );
+  Future<SharedPreferences>? _prefsInstance;
+  FlutterSecureStorage? _secureStorage;
 
   /// 获取 SharedPreferences 实例
-  Future<SharedPreferences> get prefs async => await _prefs;
+  Future<SharedPreferences> get prefs async {
+    if (_prefsInstance == null) {
+      _prefsInstance = SharedPreferences.getInstance();
+    }
+    return await _prefsInstance!;
+  }
+
+  /// 获取 FlutterSecureStorage 实例
+  FlutterSecureStorage get secureStorage {
+    _secureStorage ??= const FlutterSecureStorage(
+      aOptions: AndroidOptions(
+        encryptedSharedPreferences: true,
+      ),
+    );
+    return _secureStorage!;
+  }
 
   /// ==================== 普通存储 (SharedPreferences) ====================
 
   /// 保存字符串
   Future<bool> setString(String key, String value) async {
-    final prefs = await _prefs;
-    return await prefs.setString(key, value);
+    final p = await prefs;
+    return await p.setString(key, value);
   }
 
   /// 获取字符串
   Future<String?> getString(String key) async {
-    final prefs = await _prefs;
-    return prefs.getString(key);
+    final p = await prefs;
+    return p.getString(key);
   }
 
   /// 保存整数
   Future<bool> setInt(String key, int value) async {
-    final prefs = await _prefs;
-    return await prefs.setInt(key, value);
+    final p = await prefs;
+    return await p.setInt(key, value);
   }
 
   /// 获取整数
   Future<int?> getInt(String key) async {
-    final prefs = await _prefs;
-    return prefs.getInt(key);
+    final p = await prefs;
+    return p.getInt(key);
   }
 
   /// 保存布尔值
   Future<bool> setBool(String key, bool value) async {
-    final prefs = await _prefs;
-    return await prefs.setBool(key, value);
+    final p = await prefs;
+    return await p.setBool(key, value);
   }
 
   /// 获取布尔值
   Future<bool?> getBool(String key) async {
-    final prefs = await _prefs;
-    return prefs.getBool(key);
+    final p = await prefs;
+    return p.getBool(key);
   }
 
   /// 保存字符串列表
   Future<bool> setStringList(String key, List<String> value) async {
-    final prefs = await _prefs;
-    return await prefs.setStringList(key, value);
+    final p = await prefs;
+    return await p.setStringList(key, value);
   }
 
   /// 获取字符串列表
   Future<List<String>?> getStringList(String key) async {
-    final prefs = await _prefs;
-    return prefs.getStringList(key);
+    final p = await prefs;
+    return p.getStringList(key);
   }
 
   /// 删除键
   Future<bool> remove(String key) async {
-    final prefs = await _prefs;
-    return await prefs.remove(key);
+    final p = await prefs;
+    return await p.remove(key);
   }
 
   /// 清空所有数据
   Future<bool> clear() async {
-    final prefs = await _prefs;
-    return await prefs.clear();
+    final p = await prefs;
+    return await p.clear();
   }
 
   /// ==================== 安全存储 (FlutterSecureStorage) ====================
 
   /// 保存安全字符串
   Future<void> setSecureString(String key, String value) async {
-    await _secureStorage.write(key: key, value: value);
+    final storage = secureStorage;
+    await storage.write(key: key, value: value);
     Logger.debug('Saved secure data: $key', tag: 'Storage');
   }
 
   /// 获取安全字符串
   Future<String?> getSecureString(String key) async {
-    return await _secureStorage.read(key: key);
+    final storage = secureStorage;
+    return await storage.read(key: key);
   }
 
   /// 删除安全字符串
   Future<void> removeSecureString(String key) async {
-    await _secureStorage.delete(key: key);
+    final storage = secureStorage;
+    await storage.delete(key: key);
     Logger.debug('Removed secure data: $key', tag: 'Storage');
   }
 
   /// 清空所有安全数据
   Future<void> clearSecure() async {
-    await _secureStorage.deleteAll();
+    final storage = secureStorage;
+    await storage.deleteAll();
     Logger.info('Cleared all secure data', tag: 'Storage');
   }
 
@@ -111,8 +126,8 @@ class StorageHelper {
 
   /// 检查是否首次启动
   Future<bool> isFirstLaunch() async {
-    final prefs = await _prefs;
-    return prefs.getBool(AppConstants.keyFirstLaunch) ?? true;
+    final p = await prefs;
+    return p.getBool(AppConstants.keyFirstLaunch) ?? true;
   }
 
   /// 设置首次启动标志
@@ -130,6 +145,16 @@ class StorageHelper {
     await setString(AppConstants.keyCurrentSpaceId, spaceId);
   }
 
+  /// 获取用户 ID
+  Future<String?> getUserId() async {
+    return await getString(AppConstants.keyUserId);
+  }
+
+  /// 设置用户 ID
+  Future<void> setUserId(String userId) async {
+    await setString(AppConstants.keyUserId, userId);
+  }
+
   /// 检查深色模式
   Future<bool> isDarkMode() async {
     return await getBool(AppConstants.keyDarkMode) ?? false;
@@ -138,5 +163,25 @@ class StorageHelper {
   /// 设置深色模式
   Future<void> setDarkMode(bool value) async {
     await setBool(AppConstants.keyDarkMode, value);
+  }
+
+  /// 获取当前语言
+  Future<String?> getLanguage() async {
+    return await getString(AppConstants.keyLanguage);
+  }
+
+  /// 设置当前语言
+  Future<void> setLanguage(String language) async {
+    await setString(AppConstants.keyLanguage, language);
+  }
+
+  /// 获取AI提供商配置
+  Future<String?> getAIProvider() async {
+    return await getString(AppConstants.keyAIProvider);
+  }
+
+  /// 设置AI提供商配置
+  Future<void> setAIProvider(String provider) async {
+    await setString(AppConstants.keyAIProvider, provider);
   }
 }

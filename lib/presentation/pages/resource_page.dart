@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:get/get.dart';
-import '../../services/github_service.dart';
-import '../../services/resource_service.dart';
 
 /// 资源页面
 class ResourcePage extends StatefulWidget {
@@ -13,9 +11,6 @@ class ResourcePage extends StatefulWidget {
 }
 
 class _ResourcePageState extends State<ResourcePage> {
-  final GitHubService _githubService = GitHubService();
-  final ResourceService _resourceService = ResourceService();
-
   late int _currentTabIndex;
   late String _searchQuery;
 

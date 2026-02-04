@@ -3,9 +3,7 @@ import 'package:getwidget/getwidget.dart';
 import 'package:get/get.dart';
 import '../../app/routes.dart';
 import '../../core/constants/app_constants.dart';
-import '../../services/ai_service.dart';
 import '../../services/tts_service.dart';
-import '../../services/ocr_service.dart';
 
 /// 听写页面
 class DictationPage extends StatefulWidget {
@@ -17,7 +15,6 @@ class DictationPage extends StatefulWidget {
 
 class _DictationPageState extends State<DictationPage> {
   final TTSService _ttsService = TTSService();
-  final OCRService _ocrService = OCRService();
 
   String _selectedSubject = '语文';
   String _selectedGrade = '三年级';
@@ -395,7 +392,6 @@ class _DictationPageState extends State<DictationPage> {
 
     try {
       // 使用 AI 生成听写内容
-      final aiService = AIService();
       // TODO: 调用 AI 生成听写文本
       setState(() {
         _dictationText = '春眠不觉晓，处处闻啼鸟。夜来风雨声，花落知多少。';

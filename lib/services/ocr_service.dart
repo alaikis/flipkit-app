@@ -1,27 +1,20 @@
-import 'dart:io';
-import 'package:google_ml_kit/google_ml_kit.dart';
-import 'dart:typed_data';
-import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'ocr_factory.dart';
-import '../core/utils/logger.dart';
 
 /// OCR 服务 - 图像文字识别
-/// 
+///
 /// 现支持多种 OCR 引擎：
-/// - Google ML Kit（移动端，闭源）
 /// - PaddleOCR（百度开源，推荐）
 /// - Tesseract（Google开源，备用）
-/// 
+///
 /// 使用 OCRFactory 自动选择合适的引擎
+/// 注意：已移除 Google ML Kit 以支持国内手机（华为等）
 class OCRService {
   static final OCRService _instance = OCRService._internal();
   factory OCRService() => _instance;
 
   OCRService._internal();
 
-  TextRecognizer? _textRecognizer;
   OCRProvider? _currentProvider;
 
   /// 初始化（使用默认 OCR 提供商）
@@ -29,7 +22,7 @@ class OCRService {
     try {
       await initWithProvider();
     } catch (e) {
-      Logger.error('Failed to initialize OCR service', error: e, tag: 'OCRService');
+      print('[OCRService] Failed to initialize OCR service: $e');
       // 不抛出异常，允许应用继续运行
     }
   }
@@ -38,90 +31,50 @@ class OCRService {
   Future<void> initWithProvider({OCRProvider? provider}) async {
     // 尝试使用开源 OCR 服务
     try {
-      final ocrBase = await OCRFactory.getService(provider: provider);
+      await OCRFactory.getService(provider: provider);
       _currentProvider = OCRFactory.getCurrentProvider();
-      Logger.info('OCR Service initialized with ${OCRFactory.providerNames[_currentProvider]}', 
-                  tag: 'OCRService');
+      print('[OCRService] Initialized with ${OCRFactory.providerNames[_currentProvider]}');
       return;
     } catch (e) {
-      Logger.warning('开源 OCR 初始化失败，回退到 Google ML Kit: $e', tag: 'OCRService');
-    }
-
-    // 回退到 Google ML Kit
-    try {
-      _textRecognizer = GoogleMlKit.vision.textRecognizer();
-      _currentProvider = OCRProvider.googleMLKit;
-      Logger.info('OCR Service initialized with Google ML Kit (fallback)', 
-                  tag: 'OCRService');
-    } catch (e, stackTrace) {
-      Logger.error('Google ML Kit 初始化失败',
-          error: e, stackTrace: stackTrace, tag: 'OCRService');
+      print('[OCRService] Open source OCR failed: $e');
       rethrow;
     }
   }
 
   /// 识别图片中的文字
-  Future<String> recognizeText(File imageFile) async {
+  Future<String> recognizeText(String imageFilePath) async {
     try {
-      Logger.info('Recognizing text from image', tag: 'OCRService');
+      print('[OCRService] Recognizing text from image: $imageFilePath');
 
-      // 如果使用 Google ML Kit
-      if (_currentProvider == OCRProvider.googleMLKit && _textRecognizer != null) {
-        return await _recognizeWithGoogleMLKit(imageFile);
-      }
-
-      // 如果使用开源 OCR
-      return await _recognizeWithOpenSource(imageFile);
+      // 使用开源 OCR
+      return await _recognizeWithOpenSource(imageFilePath);
     } catch (e, stackTrace) {
-      Logger.error('Failed to recognize text',
-          error: e, stackTrace: stackTrace, tag: 'OCRService');
-      
+      print('[OCRService] Failed to recognize text: $e\n$stackTrace');
+
       // 如果当前方法失败，尝试切换到备用方案
       if (_currentProvider != OCRProvider.tesseract) {
-        Logger.info('尝试切换到 Tesseract 作为备用方案', tag: 'OCRService');
+        print('[OCRService] Trying Tesseract as fallback');
         try {
           await initWithProvider(provider: OCRProvider.tesseract);
-          return await _recognizeWithOpenSource(imageFile);
+          return await _recognizeWithOpenSource(imageFilePath);
         } catch (e2) {
-          Logger.error('备用 OCR 也失败', error: e2, tag: 'OCRService');
+          print('[OCRService] Fallback OCR also failed: $e2');
         }
       }
-      
+
       rethrow;
     }
   }
 
-  /// 使用 Google ML Kit 识别
-  Future<String> _recognizeWithGoogleMLKit(File imageFile) async {
-    final inputImage = InputImage.fromFile(imageFile);
-    final recognizedText = await _textRecognizer!.processImage(inputImage);
-
-    String text = '';
-    for (TextBlock block in recognizedText.blocks) {
-      for (TextLine line in block.lines) {
-        text += '${line.text}\n';
-      }
-    }
-
-    Logger.info('Google ML Kit OCR completed. Text length: ${text.length}', 
-                tag: 'OCRService');
-    return text.trim();
-  }
-
   /// 使用开源 OCR 识别
-  Future<String> _recognizeWithOpenSource(File imageFile) async {
-    final ocrBase = await OCRFactory.getService();
-    final text = await ocrBase.recognizeText(imageFile.path);
-    Logger.info('Open Source OCR completed. Text length: ${text.length}', 
-                tag: 'OCRService');
-    return text;
-  }
-
-  /// 计算文本相似度 (Levenshtein 距离)
-  double calculateSimilarity(String text1, String text2) {
-    final distance = _levenshteinDistance(text1, text2);
-    final maxLength = text1.length > text2.length ? text1.length : text2.length;
-    return maxLength == 0 ? 1.0 : 1.0 - (distance / maxLength);
+  Future<String> _recognizeWithOpenSource(String imageFilePath) async {
+    try {
+      final ocrBase = await OCRFactory.getService();
+      return await ocrBase.recognizeText(imageFilePath);
+    } catch (e) {
+      print('[OCRService] Open source OCR failed: $e');
+      rethrow;
+    }
   }
 
   /// Levenshtein 距离算法
@@ -164,7 +117,7 @@ class OCRService {
     final originalChars = original.replaceAll(' ', '').split('');
     final recognizedChars = recognized.replaceAll(' ', '').split('');
 
-    final similarity = calculateSimilarity(original, recognized);
+    final similarity = _calculateSimilarity(original, recognized);
 
     List<String> missing = [];
     List<String> extra = [];
@@ -218,41 +171,48 @@ class OCRService {
     };
   }
 
+  /// 计算相似度
+  double _calculateSimilarity(String a, String b) {
+    if (a == b) return 1.0;
+    
+    final distance = _levenshteinDistance(a, b);
+    final maxLength = a.length > b.length ? a.length : b.length;
+    return 1.0 - (distance / maxLength);
+  }
+
   /// 从相机拍照
-  Future<File?> pickImageFromCamera() async {
+  Future<String?> pickImageFromCamera() async {
     try {
       final picker = ImagePicker();
       final XFile? photo = await picker.pickImage(source: ImageSource.camera);
       if (photo != null) {
-        return File(photo.path);
+        return photo.path;
       }
       return null;
     } catch (e, stackTrace) {
-      Logger.error('Failed to pick image from camera',
-          error: e, stackTrace: stackTrace, tag: 'OCRService');
+      print('[OCRService] Failed to pick image from camera: $e\n$stackTrace');
       return null;
     }
   }
 
   /// 从相册选择
-  Future<File?> pickImageFromGallery() async {
+  Future<String?> pickImageFromGallery() async {
     try {
       final picker = ImagePicker();
       final XFile? photo = await picker.pickImage(source: ImageSource.gallery);
       if (photo != null) {
-        return File(photo.path);
+        return photo.path;
       }
       return null;
     } catch (e, stackTrace) {
-      Logger.error('Failed to pick image from gallery',
-          error: e, stackTrace: stackTrace, tag: 'OCRService');
+      print('[OCRService] Failed to pick image from gallery: $e\n$stackTrace');
       return null;
     }
   }
 
   /// 释放资源
   void dispose() {
-    _textRecognizer?.close();
-    Logger.info('OCR Service disposed', tag: 'OCRService');
+    // Google ML Kit 已移除，使用开源OCR
+    print('[OCRService] Disposed');
   }
 }

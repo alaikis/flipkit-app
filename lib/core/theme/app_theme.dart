@@ -245,17 +245,17 @@ class AppTheme {
     primaryColor: primaryLight,
     scaffoldBackgroundColor: const Color(0xFF121212),
 
-    appBarTheme: AppBarTheme(
+    appBarTheme: const AppBarTheme(
       elevation: 0,
       centerTitle: true,
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: Color(0xFF1E1E1E),
       foregroundColor: white,
-      titleTextStyle: const TextStyle(
+      titleTextStyle: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.w600,
         color: white,
       ),
-      iconTheme: const IconThemeData(color: white),
+      iconTheme: IconThemeData(color: white),
     ),
 
     cardTheme: CardTheme(

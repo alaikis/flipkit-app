@@ -115,11 +115,11 @@ class AIService {
             },
             {
               'role': 'user',
-              'content': '''请为${subject}科目的${chapter}章节生成${count}道${difficulty}难度的${type}。
-年级：${grade}
-数量：${count}
-题型：${type}
-难度：${difficulty}''',
+              'content': '请为$subject科目的$chapter章节生成$count道$difficulty难度的$type。\n'
+                  '年级：$grade\n'
+                  '数量：$count\n'
+                  '题型：$type\n'
+                  '难度：$difficulty',
             },
           ],
           'temperature': 0.7,
@@ -314,9 +314,9 @@ class AIService {
     try {
       // 简单的 JSON 解析，实际应该使用 json.decode
       // 这里使用正则表达式提取
-      final cleaned = jsonString.replaceAll(RegExp(r'[\n\r\t]'), '');
+      jsonString.replaceAll(RegExp(r'[\n\r\t]'), '');
       // TODO: 使用 json.decode 解析
-      return <String, dynamic>{};
+      return const <String, dynamic>{};
     } catch (e) {
       Logger.error('Failed to parse JSON response', error: e, tag: 'AIService');
       throw FormatException('Invalid JSON response');

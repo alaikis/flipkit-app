@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
 import 'app/app.dart';
 import 'core/utils/logger.dart';
 import 'services/ai_service.dart';

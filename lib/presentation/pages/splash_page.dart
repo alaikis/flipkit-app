@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:get/get.dart';
 import '../../app/routes.dart';
 import '../../core/utils/storage_helper.dart';
 import '../../core/widgets/open_book_icon.dart';
@@ -18,17 +16,28 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-    _checkFirstLaunch();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkFirstLaunch();
+    });
   }
 
   Future<void> _checkFirstLaunch() async {
-    await Future.delayed(const Duration(seconds: 2));
+    try {
+      // 等待一段时间，确保UI完全渲染
+      await Future.delayed(const Duration(milliseconds: 1500));
 
-    final isFirstLaunch = await StorageHelper().isFirstLaunch();
+      // 检查是否首次启动
+      final isFirstLaunch = await StorageHelper().isFirstLaunch();
 
-    if (isFirstLaunch) {
-      AppRoutes.toOnboarding();
-    } else {
+      // 跳转到相应页面
+      if (isFirstLaunch) {
+        AppRoutes.toOnboarding();
+      } else {
+        AppRoutes.toHome();
+      }
+    } catch (e, stackTrace) {
+      // 发生错误时，直接跳转到主页
+      print('Splash error: $e\n$stackTrace');
       AppRoutes.toHome();
     }
   }
