@@ -57,7 +57,7 @@ class TermsOfServicePage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '趣学 - 使用条款',
+                      '快学喵 - 使用条款',
                       style: Get.textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Colors.orange,
@@ -99,7 +99,7 @@ class TermsOfServicePage extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            '欢迎使用"趣学"应用！本使用条款（以下简称"本条款"）是您与福州阿莱克斯信息技术有限公司（以下简称"我们"）之间关于使用"趣学"应用的法律协议。请您仔细阅读本条款，在使用本应用前，您必须同意并接受本条款的所有内容。',
+            '欢迎使用"快学喵"应用！本使用条款（以下简称"本条款"）是您与福州阿莱克斯信息技术有限公司（以下简称"我们"）之间关于使用"快学喵"应用的法律协议。请您仔细阅读本条款，在使用本应用前，您必须同意并接受本条款的所有内容。',
             style: Get.textTheme.bodyMedium,
           ),
         ],
@@ -124,7 +124,7 @@ class TermsOfServicePage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '通过下载、安装或使用"趣学"应用，即表示您已阅读、理解并同意接受本条款的约束。如果您不同意本条款的任何内容，请立即停止使用本应用。',
+          '通过下载、安装或使用"快学喵"应用，即表示您已阅读、理解并同意接受本条款的约束。如果您不同意本条款的任何内容，请立即停止使用本应用。',
           style: Get.textTheme.bodyMedium,
         ),
         const SizedBox(height: 12),
@@ -353,7 +353,7 @@ class TermsOfServicePage extends StatelessWidget {
         children: [
           _buildContactItem('公司名称', '福州阿莱克斯信息技术有限公司'),
           _buildContactItem('联系邮箱', 'support@flipkit-app.com'),
-          _buildContactItem('应用名称', '趣学'),
+          _buildContactItem('应用名称', '快学喵'),
           const SizedBox(height: 12),
           Text(
             '如果您对本使用条款有任何疑问，请通过上述方式与我们联系。',

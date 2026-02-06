@@ -12,6 +12,19 @@ class App extends StatelessWidget {
     return FutureBuilder<ThemeData>(
       future: AppTheme.getCurrentTheme(),
       builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return GetMaterialApp(
+            title: '快学喵',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme,
+            getPages: AppRoutes.routes,
+            initialRoute: AppRoutes.splash,
+            defaultTransition: Transition.rightToLeft,
+            transitionDuration: const Duration(milliseconds: 300),
+            locale: const Locale('zh', 'CN'),
+            fallbackLocale: const Locale('zh', 'CN'),
+          );
+        }
         if (!snapshot.hasData) {
           return const MaterialApp(
             home: Scaffold(
@@ -21,7 +34,7 @@ class App extends StatelessWidget {
         }
 
         return GetMaterialApp(
-          title: '趣学',
+          title: '快学喵',
           debugShowCheckedModeBanner: false,
           theme: snapshot.data!,
           getPages: AppRoutes.routes,

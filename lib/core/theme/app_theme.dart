@@ -294,10 +294,14 @@ class AppTheme {
     ),
   );
 
-  /// 获取当前主题
+  /// 获取当前主题（失败时返回浅色主题，避免启动崩溃）
   static Future<ThemeData> getCurrentTheme() async {
-    final box = GetStorage();
-    final isDark = box.read('isDarkMode') ?? false;
-    return isDark ? darkTheme : lightTheme;
+    try {
+      final box = GetStorage();
+      final isDark = box.read('isDarkMode') ?? false;
+      return isDark ? darkTheme : lightTheme;
+    } catch (_) {
+      return lightTheme;
+    }
   }
 }

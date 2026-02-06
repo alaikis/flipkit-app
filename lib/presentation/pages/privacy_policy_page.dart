@@ -57,7 +57,7 @@ class PrivacyPolicyPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '趣学 - 隐私政策',
+                      '快学喵 - 隐私政策',
                       style: Get.textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Colors.blue,
@@ -99,7 +99,7 @@ class PrivacyPolicyPage extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            '感谢您使用"趣学"应用！我们深知个人信息对您的重要性，并会尽全力保护您的个人信息安全可靠。我们致力于维持您对我们的信任，恪守以下原则，保护您的个人信息：权责一致原则、目的明确原则、选择同意原则、最少够用原则、确保安全原则、主体参与原则、公开透明原则等。',
+            '感谢您使用"快学喵"应用！我们深知个人信息对您的重要性，并会尽全力保护您的个人信息安全可靠。我们致力于维持您对我们的信任，恪守以下原则，保护您的个人信息：权责一致原则、目的明确原则、选择同意原则、最少够用原则、确保安全原则、主体参与原则、公开透明原则等。',
             style: Get.textTheme.bodyMedium,
           ),
         ],
@@ -300,7 +300,7 @@ class PrivacyPolicyPage extends StatelessWidget {
         children: [
           _buildContactItem('公司名称', '福州阿莱克斯信息技术有限公司'),
           _buildContactItem('联系邮箱', 'support@flipkit-app.com'),
-          _buildContactItem('应用名称', '趣学'),
+          _buildContactItem('应用名称', '快学喵'),
           const SizedBox(height: 12),
           Text(
             '如果您对本隐私政策有任何疑问、意见或建议，请通过上述方式与我们联系。我们将在收到您的反馈后尽快回复。',

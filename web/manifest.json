@@ -1,11 +1,11 @@
 {
-    "name": "qukit_flutter_new",
-    "short_name": "qukit_flutter_new",
+    "name": "快学喵",
+    "short_name": "快学喵",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "快学喵 - 智能学习，快乐成长",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

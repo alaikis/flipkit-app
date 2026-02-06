@@ -1,4 +1,4 @@
-package com.example.qukit_flutter_new
+package com.alaikis.flipkit
 
 import android.os.Bundle
 import androidx.multidex.MultiDex
@@ -6,7 +6,7 @@ import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugins.GeneratedPluginRegistrant
 
-class MainActivity: FlutterActivity() {
+class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         GeneratedPluginRegistrant.registerWith(flutterEngine)
@@ -17,15 +17,12 @@ class MainActivity: FlutterActivity() {
         try {
             MultiDex.install(this)
         } catch (e: Exception) {
-            // MultiDex安装失败时也要继续运行
             println("MultiDex install failed: ${e.message}")
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
-        // 设置全局异常处理器
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             println("Uncaught exception in thread ${thread.name}: $throwable")
             throwable.printStackTrace()

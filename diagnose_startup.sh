@@ -50,13 +50,13 @@ fi
 
 echo ""
 echo "4. 检查异常处理..."
-if grep -q "Thread.setDefaultUncaughtExceptionHandler" android/app/src/main/kotlin/com/example/qukit_flutter_new/MainActivity.kt; then
+if grep -q "Thread.setDefaultUncaughtExceptionHandler" android/app/src/main/kotlin/com/alaikis/flipkit/MainActivity.kt; then
     echo "   ✓ MainActivity 有全局异常处理"
 else
     echo "   [!] MainActivity 缺少全局异常处理"
 fi
 
-if grep -q "MultiDex.install" android/app/src/main/kotlin/com/example/qukit_flutter_new/MainActivity.kt; then
+if grep -q "MultiDex.install" android/app/src/main/kotlin/com/alaikis/flipkit/MainActivity.kt; then
     echo "   ✓ MainActivity 有 MultiDex 安装"
 else
     echo "   [!] MainActivity 缺少 MultiDex 安装"

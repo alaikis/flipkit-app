@@ -79,7 +79,7 @@ class _SplashPageState extends State<SplashPage> {
                   animate: true,
                   delay: const Duration(milliseconds: 300),
                   child: const Text(
-                    '趣学',
+                    '快学喵',
                     style: TextStyle(
                       fontSize: 52,
                       fontWeight: FontWeight.w900,
