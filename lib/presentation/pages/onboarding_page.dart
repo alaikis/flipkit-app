@@ -34,8 +34,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
     },
     {
       'icon': Icons.folder_special,
-      'title': '资源进化系统',
-      'description': 'GitHub 资源搜索下载，扩展学习资料',
+      'title': '学习与作业',
+      'description': '按年级选科目练题，拍照或语音生成作业题',
       'color': ChildTheme.grassGreen,
       'bgColor': Color(0xFF90EE90).withOpacity(0.15),
     },

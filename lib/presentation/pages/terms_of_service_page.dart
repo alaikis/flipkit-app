@@ -169,7 +169,7 @@ class TermsOfServicePage extends StatelessWidget {
         _buildServiceItem('OCR智能识别', '拍照识别手写内容并智能评分'),
         _buildServiceItem('语音听写', '语音转文字的听写练习功能'),
         _buildServiceItem('作文辅导', 'AI辅助的作文写作指导'),
-        _buildServiceItem('资源搜索', 'GitHub资源搜索和下载功能'),
+        _buildServiceItem('资源管理', '本地与网络学习资源管理'),
         const SizedBox(height: 12),
         _buildSubSection('2.2 服务变更'),
         const SizedBox(height: 8),

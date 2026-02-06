@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import '../config/ai_config.dart';
 import '../core/utils/logger.dart';
@@ -87,8 +88,8 @@ class AIService {
           'messages': [
             {
               'role': 'system',
-              'content': '''你是一位专业的教育工作者，擅长为K12学生生成练习题。
-请根据用户的要求生成题目，并以JSON格式返回。
+              'content': '''你是一位专业的教育工作者，擅长为K12学生生成练习题。本系统完全依靠大模型组题，不依赖下载或上传的题库资源。
+请根据用户要求直接生成题目，并以JSON格式返回。若你具备联网能力，请优先参考当前教育部大纲、教材与最新考情，确保题目与现行教材、考纲一致。
 
 返回格式要求：
 {
@@ -312,14 +313,12 @@ class AIService {
   /// 解析 JSON 响应
   Map<String, dynamic> _parseJsonResponse(String jsonString) {
     try {
-      // 简单的 JSON 解析，实际应该使用 json.decode
-      // 这里使用正则表达式提取
-      jsonString.replaceAll(RegExp(r'[\n\r\t]'), '');
-      // TODO: 使用 json.decode 解析
-      return const <String, dynamic>{};
+      final cleaned = jsonString.replaceAll(RegExp(r'[\n\r\t]'), ' ').trim();
+      final decoded = json.decode(cleaned) as Map<String, dynamic>?;
+      return decoded ?? <String, dynamic>{};
     } catch (e) {
       Logger.error('Failed to parse JSON response', error: e, tag: 'AIService');
-      throw FormatException('Invalid JSON response');
+      throw FormatException('Invalid JSON response: $e');
     }
   }
 
@@ -333,5 +332,33 @@ class AIService {
   Future<void> setApiKey(String providerName, String apiKey) async {
     await StorageHelper().setSecureString('ai_key_$providerName', apiKey);
     Logger.info('API key saved for provider: $providerName', tag: 'AIService');
+  }
+
+  /// 通用对话（返回助手回复正文，用于课程表等非题目场景）
+  Future<String?> chatRaw(String systemContent, String userContent) async {
+    try {
+      final provider = await getCurrentProvider();
+      final apiKey = await getApiKey(provider.name);
+      final response = await _dio.post(
+        '${provider.baseUrl}/chat/completions',
+        options: Options(
+          headers: {'Authorization': 'Bearer $apiKey'},
+        ),
+        data: {
+          'model': provider.models.first,
+          'messages': [
+            {'role': 'system', 'content': systemContent},
+            {'role': 'user', 'content': userContent},
+          ],
+          'temperature': 0.3,
+        },
+      );
+      final data = response.data as Map<String, dynamic>?;
+      final content = data?['choices']?[0]?['message']?['content'] as String?;
+      return content;
+    } catch (e) {
+      Logger.error('chatRaw failed', error: e, tag: 'AIService');
+      return null;
+    }
   }
 }

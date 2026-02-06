@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:get/get.dart';
 import '../../core/constants/app_constants.dart';
+import '../../core/curriculum_cache.dart';
 import '../../services/ai_service.dart';
 
 /// 问答页面
@@ -15,6 +16,7 @@ class QuizPage extends StatefulWidget {
 class _QuizPageState extends State<QuizPage> {
   final AIService _aiService = AIService();
 
+  String _selectedGrade = AppConstants.gradeLevels.first;
   String _selectedSubject = '数学';
   String _selectedDifficulty = '中等';
   int _currentQuestionIndex = 0;
@@ -26,7 +28,7 @@ class _QuizPageState extends State<QuizPage> {
   bool _showResult = false;
   bool _isLoading = false;
 
-  final List<String> _subjects = AppConstants.subjects;
+  List<String> get _subjects => CurriculumCache.getSubjectsForGrade(_selectedGrade);
   final List<String> _difficulties = AppConstants.difficultyLevels;
 
   @override
@@ -55,12 +57,16 @@ class _QuizPageState extends State<QuizPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            'AI 将为您生成个性化的练习题目',
+            '先选年级，再选科目，AI 生成个性化题目',
             style: Get.textTheme.bodyMedium?.copyWith(
               color: Colors.grey[600],
             ),
           ),
           const SizedBox(height: 32),
+          Text('选择年级', style: Get.textTheme.titleLarge),
+          const SizedBox(height: 16),
+          _buildGradeSelector(),
+          const SizedBox(height: 24),
           Text('选择科目', style: Get.textTheme.titleLarge),
           const SizedBox(height: 16),
           _buildSubjectSelector(),
@@ -204,6 +210,32 @@ class _QuizPageState extends State<QuizPage> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildGradeSelector() {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: AppConstants.gradeLevels.map((grade) {
+        return GFButton(
+          text: grade,
+          type: _selectedGrade == grade
+              ? GFButtonType.solid
+              : GFButtonType.outline,
+          size: GFSize.SMALL,
+          color: Get.theme.colorScheme.primary,
+          onPressed: () {
+            setState(() {
+              _selectedGrade = grade;
+              final subs = CurriculumCache.getSubjectsForGrade(grade);
+              if (!subs.contains(_selectedSubject)) {
+                _selectedSubject = subs.isNotEmpty ? subs.first : '数学';
+              }
+            });
+          },
+        );
+      }).toList(),
     );
   }
 
@@ -388,8 +420,8 @@ class _QuizPageState extends State<QuizPage> {
     try {
       final questions = await _aiService.generateQuestions(
         subject: _selectedSubject,
-        grade: '三年级',
-        chapter: '第一章',
+        grade: _selectedGrade,
+        chapter: '综合练习',
         count: _totalQuestions,
         difficulty: _selectedDifficulty,
       );

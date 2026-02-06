@@ -3,6 +3,7 @@ import 'package:getwidget/getwidget.dart';
 import 'package:get/get.dart';
 import '../../app/routes.dart';
 import '../../core/constants/app_constants.dart';
+import '../../core/curriculum_cache.dart';
 import '../../services/tts_service.dart';
 
 /// 听写页面
@@ -16,8 +17,8 @@ class DictationPage extends StatefulWidget {
 class _DictationPageState extends State<DictationPage> {
   final TTSService _ttsService = TTSService();
 
-  String _selectedSubject = '语文';
   String _selectedGrade = '三年级';
+  String _selectedSubject = '语文';
   int _currentStep = 0;
 
   String? _dictationText;
@@ -25,8 +26,9 @@ class _DictationPageState extends State<DictationPage> {
   double? _similarity;
   List<Map<String, dynamic>>? _errors;
 
-  final List<String> _subjects = AppConstants.subjects;
   final List<String> _grades = AppConstants.gradeLevels;
+
+  List<String> get _subjects => CurriculumCache.getSubjectsForGrade(_selectedGrade);
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +57,7 @@ class _DictationPageState extends State<DictationPage> {
     }
   }
 
-  // 步骤1：选择科目和年级
+  // 步骤1：先选年级，再选科目（科目随年级变化）
   Widget _buildSelectStep() {
     return Padding(
       padding: const EdgeInsets.all(20),
@@ -64,13 +66,13 @@ class _DictationPageState extends State<DictationPage> {
         children: [
           _buildProgressIndicator(0),
           const SizedBox(height: 32),
-          Text('选择科目', style: Get.textTheme.titleLarge),
-          const SizedBox(height: 16),
-          _buildSubjectSelector(),
-          const SizedBox(height: 24),
           Text('选择年级', style: Get.textTheme.titleLarge),
           const SizedBox(height: 16),
           _buildGradeSelector(),
+          const SizedBox(height: 24),
+          Text('选择科目', style: Get.textTheme.titleLarge),
+          const SizedBox(height: 16),
+          _buildSubjectSelector(),
           const Spacer(),
           GFButton(
             text: '下一步',
@@ -302,7 +304,15 @@ class _DictationPageState extends State<DictationPage> {
               ? GFButtonType.solid
               : GFButtonType.outline,
           color: Get.theme.colorScheme.primary,
-          onPressed: () => setState(() => _selectedGrade = grade),
+          onPressed: () {
+            setState(() {
+              _selectedGrade = grade;
+              final subs = CurriculumCache.getSubjectsForGrade(grade);
+              if (!subs.contains(_selectedSubject)) {
+                _selectedSubject = subs.isNotEmpty ? subs.first : '语文';
+              }
+            });
+          },
         );
       }).toList(),
     );

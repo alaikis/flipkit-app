@@ -13,7 +13,7 @@ class AppConstants {
   static const String routeSettings = '/settings';
   static const String routeProfile = '/profile';
   static const String routeResources = '/resources';
-  static const String routeGitHub = '/github';
+  static const String routeHomework = '/homework';
 
   // ==================== 存储键 ====================
   static const String keyFirstLaunch = 'first_launch';
@@ -22,6 +22,8 @@ class AppConstants {
   static const String keyDarkMode = 'dark_mode';
   static const String keyAIProvider = 'ai_provider';
   static const String keyLanguage = 'language';
+  static const String keyCurriculumJson = 'curriculum_json';
+  static const String keyCurriculumUpdatedAt = 'curriculum_updated_at';
 
   // ==================== API 端点 ====================
   static const String endpointGenerateQuestions = '/generate/questions';
@@ -65,7 +67,7 @@ class AppConstants {
     '困难',
   ];
 
-  // ==================== 科目列表 ====================
+  // ==================== 科目列表（全量，兼容旧逻辑） ====================
   static const List<String> subjects = [
     '语文',
     '数学',
@@ -94,4 +96,21 @@ class AppConstants {
     '高二',
     '高三',
   ];
+
+  /// 按年级返回该年级可用科目（不同年级科目不同）
+  static List<String> subjectsForGrade(String grade) {
+    const primaryGrades = ['一年级', '二年级', '三年级', '四年级', '五年级', '六年级'];
+    const juniorGrades = ['七年级', '八年级', '九年级'];
+    const seniorGrades = ['高一', '高二', '高三'];
+    if (primaryGrades.contains(grade)) {
+      return ['语文', '数学', '英语', '道德与法治'];
+    }
+    if (juniorGrades.contains(grade)) {
+      return ['语文', '数学', '英语', '道德与法治', '物理', '化学', '生物', '历史', '地理', '政治'];
+    }
+    if (seniorGrades.contains(grade)) {
+      return ['语文', '数学', '英语', '道德与法治', '物理', '化学', '生物', '历史', '地理', '政治'];
+    }
+    return List.from(subjects);
+  }
 }

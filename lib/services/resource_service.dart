@@ -4,9 +4,8 @@ import 'dart:io';
 import '../core/utils/logger.dart';
 import '../data/models/resource.dart';
 import '../data/database/database_helper.dart';
-import 'github_service.dart';
 
-/// 资源服务 - 管理各种教育资源
+/// 资源服务 - 管理本地与网络教育资源（已移除 GitHub 下载）
 class ResourceService {
   static final ResourceService _instance = ResourceService._internal();
   factory ResourceService() => _instance;
@@ -15,7 +14,6 @@ class ResourceService {
 
   late final Dio _dio;
   final DatabaseHelper _db = DatabaseHelper();
-  final GitHubService _githubService = GitHubService();
 
   /// 初始化
   Future<void> init() async {
@@ -24,8 +22,6 @@ class ResourceService {
       receiveTimeout: const Duration(milliseconds: 60000),
       sendTimeout: const Duration(milliseconds: 30000),
     ));
-
-    await _githubService.init();
     Logger.info('Resource Service initialized', tag: 'ResourceService');
   }
 
@@ -117,101 +113,12 @@ class ResourceService {
     }
   }
 
-  /// 从 GitHub 添加资源
-  Future<List<String>> addGitHubResources({
-    required String owner,
-    required String repo,
-    required String spaceId,
-    String? path,
-    String? fileExtension,
-  }) async {
-    try {
-      Logger.info('Adding GitHub resources: $owner/$repo', tag: 'ResourceService');
-
-      final downloadedFiles = await _githubService.cloneRepository(
-        owner: owner,
-        repo: repo,
-        path: path,
-        fileExtension: fileExtension,
-      );
-
-      // 保存到数据库
-      for (var filePath in downloadedFiles) {
-        final file = File(filePath);
-        final fileName = file.path.split('/').last;
-        final fileSize = await file.length();
-
-        final resource = Resource(
-          id: '${DateTime.now().millisecondsSinceEpoch}_${fileName}',
-          spaceId: spaceId,
-          title: fileName,
-          description: '从 GitHub 下载的资源',
-          type: _getResourceType(fileName),
-          source: 'github',
-          githubRepo: '$owner/$repo',
-          githubPath: path ?? '',
-          localPath: filePath,
-          fileSize: fileSize,
-          createdAt: DateTime.now(),
-        );
-
-        await _db.insertResource(resource);
-      }
-
-      Logger.info('GitHub resources added: ${downloadedFiles.length} files',
-          tag: 'ResourceService');
-      return downloadedFiles;
-    } catch (e, stackTrace) {
-      Logger.error('Failed to add GitHub resources',
-          error: e, stackTrace: stackTrace, tag: 'ResourceService');
-      rethrow;
-    }
-  }
-
   /// 获取资源列表
   Future<List<Resource>> getResources(String spaceId) async {
     try {
       return await _db.getResources(spaceId);
     } catch (e, stackTrace) {
       Logger.error('Failed to get resources',
-          error: e, stackTrace: stackTrace, tag: 'ResourceService');
-      return [];
-    }
-  }
-
-  /// 搜索 GitHub 仓库
-  Future<List<Map<String, dynamic>>> searchGitHubRepositories({
-    required String query,
-    String? language,
-  }) async {
-    try {
-      return await _githubService.searchRepositories(
-        query: query,
-        language: language,
-      );
-    } catch (e, stackTrace) {
-      Logger.error('Failed to search GitHub repositories',
-          error: e, stackTrace: stackTrace, tag: 'ResourceService');
-      return [];
-    }
-  }
-
-  /// 获取 GitHub 仓库文件
-  Future<List<Map<String, dynamic>>> getGitHubRepositoryFiles({
-    required String owner,
-    required String repo,
-    String? path,
-    String? extension,
-  }) async {
-    try {
-      return await _githubService.getRepositoryFiles(
-        owner: owner,
-        repo: repo,
-        path: path ?? '',
-        extension: extension ?? '',
-      );
-    } catch (e, stackTrace) {
-      Logger.error('Failed to get GitHub repository files',
           error: e, stackTrace: stackTrace, tag: 'ResourceService');
       return [];
     }

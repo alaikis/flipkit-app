@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:get/get.dart';
+import 'package:uuid/uuid.dart';
 import '../../config/ai_config.dart';
 import '../../config/app_config.dart';
 import '../../app/routes.dart';
+import '../../core/constants/app_constants.dart';
+import '../../core/utils/storage_helper.dart';
+import '../../data/models/learning_space.dart';
+import '../../data/database/database_helper.dart';
+import '../../core/curriculum_cache.dart';
+import '../../services/curriculum_sync_service.dart';
 
 /// 设置页面
 class SettingsPage extends StatefulWidget {
@@ -16,6 +23,30 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   String _selectedProvider = AIConfig.currentProvider;
   bool _darkMode = false;
+  List<LearningSpace> _spaces = [];
+  String? _currentSpaceId;
+  static const String _defaultUserId = 'default_user';
+  bool _curriculumSyncing = false;
+  String? _curriculumUpdatedAt;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSpaces();
+  }
+
+  Future<void> _loadSpaces() async {
+    _currentSpaceId = await StorageHelper().getString(AppConstants.keyCurrentSpaceId);
+    _curriculumUpdatedAt = await StorageHelper().getString(AppConstants.keyCurriculumUpdatedAt);
+    final list = await DatabaseHelper().getLearningSpaces(_defaultUserId);
+    if (mounted) setState(() {
+      _spaces = list;
+      if (_currentSpaceId == null && list.isNotEmpty) {
+        _currentSpaceId = list.first.id;
+        StorageHelper().setString(AppConstants.keyCurrentSpaceId, list.first.id);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +56,10 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       body: ListView(
         children: [
+          _buildSectionHeader('学习空间（多学生）'),
+          _buildLearningSpacesSection(),
+          _buildSectionHeader('科目与知识点'),
+          _buildCurriculumSection(),
           _buildSectionHeader('AI 设置'),
           _buildAIProviderSection(),
           _buildSectionHeader('应用设置'),
@@ -33,6 +68,180 @@ class _SettingsPageState extends State<SettingsPage> {
           _buildOpenSourceSection(),
           _buildSectionHeader('关于'),
           _buildAboutSection(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLearningSpacesSection() {
+    return GFCard(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      content: Column(
+        children: [
+          ..._spaces.map((space) {
+            final isCurrent = _currentSpaceId == space.id;
+            return GFListTile(
+              title: Text(space.childName),
+              subTitle: Text('${space.grade} · ${space.childGender}'),
+              icon: Icon(
+                Icons.person,
+                color: isCurrent ? Colors.green : null,
+              ),
+              avatar: isCurrent
+                  ? const Icon(Icons.check_circle, color: Colors.green)
+                  : null,
+              onTap: () async {
+                await StorageHelper().setString(AppConstants.keyCurrentSpaceId, space.id);
+                setState(() => _currentSpaceId = space.id);
+                Get.snackbar('已切换', '当前：${space.childName}');
+              },
+            );
+          }),
+          const Divider(),
+          GFButton(
+            text: '添加学生',
+            icon: const Icon(Icons.add),
+            type: GFButtonType.outline,
+            blockButton: true,
+            onPressed: _showAddSpaceDialog,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCurriculumSection() {
+    final updatedStr = _curriculumUpdatedAt != null
+        ? _formatCurriculumUpdatedAt(_curriculumUpdatedAt!)
+        : '未更新过';
+    return GFCard(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      content: Column(
+        children: [
+          GFListTile(
+            title: const Text('科目与知识点'),
+            subTitle: Text(
+              '由大模型从网络更新，上次：$updatedStr',
+              style: Get.textTheme.bodySmall,
+            ),
+            icon: const Icon(Icons.school),
+          ),
+          const Divider(),
+          GFButton(
+            text: _curriculumSyncing ? '更新中…' : '立即更新科目与知识点',
+            icon: Icon(_curriculumSyncing ? Icons.hourglass_empty : Icons.cloud_sync),
+            type: GFButtonType.outline,
+            blockButton: true,
+            onPressed: _curriculumSyncing ? null : _syncCurriculum,
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatCurriculumUpdatedAt(String ms) {
+    final t = int.tryParse(ms);
+    if (t == null) return ms;
+    final dt = DateTime.fromMillisecondsSinceEpoch(t);
+    return '${dt.month}月${dt.day}日 ${dt.hour}:${dt.minute.toString().padLeft(2, '0')}';
+  }
+
+  Future<void> _syncCurriculum() async {
+    setState(() => _curriculumSyncing = true);
+    try {
+      final ok = await CurriculumSyncService().fetchAndSaveCurriculum();
+      await _loadSpaces();
+      if (mounted) {
+        Get.snackbar(ok ? '更新成功' : '更新失败', ok ? '科目与知识点已从大模型更新' : '请检查网络与 AI 配置');
+      }
+    } finally {
+      if (mounted) setState(() => _curriculumSyncing = false);
+    }
+  }
+
+  void _showAddSpaceDialog() {
+    String name = '';
+    String gender = '男';
+    String grade = AppConstants.gradeLevels.first;
+    Get.dialog(
+      AlertDialog(
+        title: const Text('添加学习空间'),
+        content: StatefulBuilder(
+          builder: (context, setDialogState) {
+            return SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    decoration: const InputDecoration(
+                      labelText: '学生姓名',
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (v) => name = v,
+                  ),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<String>(
+                    value: gender,
+                    decoration: const InputDecoration(
+                      labelText: '性别',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: const [
+                      DropdownMenuItem(value: '男', child: Text('男')),
+                      DropdownMenuItem(value: '女', child: Text('女')),
+                    ],
+                    onChanged: (v) => setDialogState(() => gender = v ?? '男'),
+                  ),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<String>(
+                    value: grade,
+                    decoration: const InputDecoration(
+                      labelText: '年级',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: AppConstants.gradeLevels
+                        .map((g) => DropdownMenuItem(value: g, child: Text(g)))
+                        .toList(),
+                    onChanged: (v) => setDialogState(() => grade = v ?? grade),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('取消'),
+          ),
+          GFButton(
+            text: '添加',
+            onPressed: () async {
+              if (name.trim().isEmpty) {
+                Get.snackbar('提示', '请输入学生姓名');
+                return;
+              }
+              Get.back();
+              final now = DateTime.now();
+              final space = LearningSpace(
+                id: const Uuid().v4(),
+                userId: _defaultUserId,
+                childName: name.trim(),
+                childGender: gender,
+                grade: grade,
+                textbookVersion: '通用',
+                isActive: true,
+                createdAt: now,
+                updatedAt: now,
+              );
+              await DatabaseHelper().insertLearningSpace(space);
+              if (_spaces.isEmpty) {
+                await StorageHelper().setString(AppConstants.keyCurrentSpaceId, space.id);
+              }
+              await _loadSpaces();
+              Get.snackbar('已添加', '${space.childName}（${space.grade}）');
+            },
+          ),
         ],
       ),
     );
@@ -60,6 +269,13 @@ class _SettingsPageState extends State<SettingsPage> {
             title: const Text('AI 提供商'),
             subTitle: Text(_selectedProvider),
             icon: const Icon(Icons.psychology),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Text(
+              '题目由大模型/联网大模型组题，无需下载或上传题库资源。',
+              style: Get.textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+            ),
           ),
           const Divider(),
           ...AIConfig.providers.map((provider) {

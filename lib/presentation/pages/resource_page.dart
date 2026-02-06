@@ -23,7 +23,6 @@ class _ResourcePageState extends State<ResourcePage> {
 
   final List<Widget> _tabs = [
     Tab(text: '本地资源'),
-    Tab(text: 'GitHub 搜索'),
     Tab(text: '网络资源'),
   ];
 
@@ -41,7 +40,6 @@ class _ResourcePageState extends State<ResourcePage> {
         index: _currentTabIndex,
         children: [
           _buildLocalResourcesTab(),
-          _buildGitHubSearchTab(),
           _buildWebResourcesTab(),
         ],
       ),
@@ -96,40 +94,6 @@ class _ResourcePageState extends State<ResourcePage> {
           ]),
         ),
       ],
-    );
-  }
-
-  Widget _buildGitHubSearchTab() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          // 搜索栏
-          GFSearchBar(
-            searchList: [],
-            searchQueryBuilder: (query, list) {
-              setState(() => _searchQuery = query);
-              return list;
-            },
-            overlaySearchListItemBuilder: (item) => Container(),
-            noItemsFoundWidget: Container(),
-          ),
-          const SizedBox(height: 16),
-          // 搜索按钮
-          GFButton(
-            text: '搜索 GitHub',
-            size: GFSize.LARGE,
-            blockButton: true,
-            icon: const Icon(Icons.search),
-            onPressed: _searchGitHub,
-          ),
-          const SizedBox(height: 16),
-          // 搜索结果
-          Expanded(
-            child: _buildGitHubResults(),
-          ),
-        ],
-      ),
     );
   }
 
@@ -221,88 +185,6 @@ class _ResourcePageState extends State<ResourcePage> {
     );
   }
 
-  Widget _buildGitHubResults() {
-    return ListView(
-      children: [
-        _buildRepositoryCard(
-          name: 'elementary-school-math',
-          description: '小学数学练习题库',
-          stars: 1234,
-          language: 'Python',
-          owner: 'education-org',
-        ),
-        _buildRepositoryCard(
-          name: 'english-learning-materials',
-          description: '英语学习资料集合',
-          stars: 856,
-          language: 'English',
-          owner: 'learn-english',
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRepositoryCard({
-    required String name,
-    required String description,
-    required int stars,
-    required String language,
-    required String owner,
-  }) {
-    return GFCard(
-      margin: const EdgeInsets.only(bottom: 16),
-      content: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.book, color: Colors.grey),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  name,
-                  style: Get.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            description,
-            style: Get.textTheme.bodyMedium?.copyWith(
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              const Icon(Icons.star, color: Colors.orange, size: 16),
-              const SizedBox(width: 4),
-              Text('$stars', style: Get.textTheme.bodySmall),
-              const SizedBox(width: 16),
-              Icon(Icons.code, color: Colors.blue[700], size: 16),
-              const SizedBox(width: 4),
-              Text(language, style: Get.textTheme.bodySmall),
-              const SizedBox(width: 16),
-              Icon(Icons.person, color: Colors.grey, size: 16),
-              const SizedBox(width: 4),
-              Text(owner, style: Get.textTheme.bodySmall),
-            ],
-          ),
-          const SizedBox(height: 12),
-          GFButton(
-            text: '查看并下载',
-            size: GFSize.SMALL,
-            blockButton: true,
-            onPressed: () => _showRepositoryDetail(name),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildWebResults() {
     return Center(
       child: Column(
@@ -352,14 +234,6 @@ class _ResourcePageState extends State<ResourcePage> {
               title: '从链接下载',
               subtitle: '输入资源链接',
               color: Colors.green,
-              onTap: () {},
-            ),
-            const SizedBox(height: 12),
-            _buildAddResourceButton(
-              icon: Icons.code,
-              title: 'GitHub 下载',
-              subtitle: '从 GitHub 仓库下载',
-              color: Colors.purple,
               onTap: () {},
             ),
           ],
@@ -421,20 +295,6 @@ class _ResourcePageState extends State<ResourcePage> {
     );
   }
 
-  Future<void> _searchGitHub() async {
-    if (_searchQuery.isEmpty) {
-      Get.snackbar('提示', '请输入搜索关键词');
-      return;
-    }
-
-    Get.showOverlay(
-      asyncFunction: () async {
-        await Future.delayed(const Duration(seconds: 1));
-        Get.snackbar('成功', '搜索完成');
-      },
-    );
-  }
-
   Future<void> _searchWeb() async {
     if (_searchQuery.isEmpty) {
       Get.snackbar('提示', '请输入搜索关键词');
@@ -446,51 +306,6 @@ class _ResourcePageState extends State<ResourcePage> {
         await Future.delayed(const Duration(seconds: 1));
         Get.snackbar('成功', '搜索完成');
       },
-    );
-  }
-
-  void _showRepositoryDetail(String repoName) {
-    Get.bottomSheet(
-      Container(
-        height: Get.height * 0.6,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Get.theme.colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              repoName,
-              style: Get.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 24),
-            const Text('文件列表', style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            Expanded(
-              child: ListView(
-                children: [
-                  _buildFileItem('Chapter1.pdf', 'PDF', 1.2),
-                  _buildFileItem('Chapter2.pdf', 'PDF', 1.5),
-                  _buildFileItem('Exercises.docx', 'Word', 0.5),
-                ],
-              ),
-            ),
-            GFButton(
-              text: '下载全部',
-              size: GFSize.LARGE,
-              blockButton: true,
-              onPressed: () {
-                Get.back();
-                Get.snackbar('成功', '开始下载...');
-              },
-            ),
-          ],
-        ),
-      ),
     );
   }
 

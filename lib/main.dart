@@ -6,8 +6,9 @@ import 'core/utils/logger.dart';
 import 'services/ai_service.dart';
 import 'services/ocr_service.dart';
 import 'services/tts_service.dart';
-import 'services/github_service.dart';
 import 'services/resource_service.dart';
+import 'core/curriculum_cache.dart';
+import 'services/curriculum_sync_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -56,18 +57,17 @@ void main() async {
       Logger.error('Failed to initialize TTS Service', error: e, tag: 'Main');
     }
     try {
-      await GitHubService().init();
-      successCount++;
-    } catch (e) {
-      failureCount++;
-      Logger.error('Failed to initialize GitHub Service', error: e, tag: 'Main');
-    }
-    try {
       await ResourceService().init();
       successCount++;
     } catch (e) {
       failureCount++;
       Logger.error('Failed to initialize Resource Service', error: e, tag: 'Main');
+    }
+    try {
+      await CurriculumCache.loadFromStorage();
+      await CurriculumSyncService().syncIfNeeded();
+    } catch (e) {
+      Logger.warning('Curriculum load/sync: $e', tag: 'Main');
     }
     Logger.info('Services init done: $successCount ok, $failureCount failed', tag: 'Main');
   });

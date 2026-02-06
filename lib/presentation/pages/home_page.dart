@@ -3,6 +3,10 @@ import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../app/routes.dart';
 import '../../core/theme/child_theme_transitions.dart';
+import '../../core/constants/app_constants.dart';
+import '../../core/utils/storage_helper.dart';
+import '../../data/database/database_helper.dart';
+import '../../data/models/learning_space.dart';
 
 /// 主页
 class HomePage extends StatefulWidget {
@@ -15,6 +19,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
   late AnimationController _animationController;
+  LearningSpace? _currentSpace;
 
   @override
   void initState() {
@@ -23,6 +28,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
+    _loadCurrentSpace();
+  }
+
+  Future<void> _loadCurrentSpace() async {
+    final spaceId = await StorageHelper().getString(AppConstants.keyCurrentSpaceId);
+    if (spaceId == null) return;
+    final list = await DatabaseHelper().getLearningSpaces('default_user');
+    LearningSpace? space;
+    try {
+      space = list.firstWhere((s) => s.id == spaceId);
+    } catch (_) {}
+    if (mounted) setState(() => _currentSpace = space);
   }
 
   @override
@@ -87,13 +104,17 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '早上好，同学！',
+                  _currentSpace != null
+                      ? '${_currentSpace!.childName}，加油！'
+                      : '早上好，同学！',
                   style: Get.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  '今天也要努力学习哦 💪',
+                  _currentSpace != null
+                      ? '${_currentSpace!.grade} · 今天也要努力学习哦 💪'
+                      : '今天也要努力学习哦 💪',
                   style: Get.textTheme.bodyMedium?.copyWith(
                     color: Colors.grey[600],
                   ),
@@ -538,11 +559,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           onTap: () => AppRoutes.toMorality(),
         ),
         _buildModuleCard(
-          icon: Icons.folder_open,
-          title: '资源',
-          subtitle: '学习资料',
+          icon: Icons.assignment,
+          title: '作业',
+          subtitle: '拍照/描述出题',
           color: Color(0xFF673AB7),
-          onTap: () => AppRoutes.toResources(),
+          onTap: () => AppRoutes.toHomework(),
         ),
       ],
     );
@@ -625,7 +646,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         _buildResourceCard(
           icon: Icons.picture_as_pdf,
           title: '小学数学练习册',
-          subtitle: 'GitHub · 百星项目',
+          subtitle: '本地 · 练习资料',
           tag: '热门',
           tagColor: Colors.red,
           onTap: () => AppRoutes.toResources(),
